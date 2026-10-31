@@ -1,8 +1,16 @@
 #include "../Source/PluginProcessor.h"
 #include "../Source/NavegadorPresets.h"
+#include "../Source/PosicaoPresets.h"
 #include <iostream>
 #include <stdexcept>
 int main(){juce::ScopedJuceInitialiser_GUI gui;try{
+ // A janela fica fora do painel e dentro da área útil, inclusive em outro monitor.
+ for(const auto& caso:std::initializer_list<std::pair<juce::Rectangle<int>,juce::Rectangle<int>>>{{{500,80,1192,420},{0,0,1920,1040}},{{8,80,1192,420},{0,0,1920,1040}},{{-1400,80,1000,420},{-1920,0,1920,1040}},{{0,20,1192,420},{0,0,1366,1080}}}){
+  const auto janela=posicionarPresetsExternos(caso.first,{389,484},caso.second);
+  if(janela.intersects(caso.first)||!caso.second.contains(janela))throw std::runtime_error("Floating browser overlaps editor or leaves display");
+ }
+ const auto esquerda=posicionarPresetsExternos({500,80,1192,420},{389,484},{0,0,1920,1040});if(esquerda.getRight()>500||esquerda.getY()!=80)throw std::runtime_error("Left placement not preferred");
+ const auto pequena=posicionarPresetsExternos({0,0,1192,420},{389,484},{0,0,1024,768});if(!juce::Rectangle<int>(0,0,1024,768).contains(pequena))throw std::runtime_error("Floating browser off small screen");
  VocaProcessor p;p.prepareToPlay(48000,256);
  if(p.getNumPrograms()<50)throw std::runtime_error("Preset bank missing");
  for(int i=0;i<p.getNumPrograms();++i){p.setCurrentProgram(i);for(const auto& spec:specs){const auto expected=(float)p.bank[(size_t)i].settings.getProperty(spec.id,spec.initial);if(std::abs(p.value(spec.id)-expected)>0.001f)throw std::runtime_error("Preset mapping mismatch");}}

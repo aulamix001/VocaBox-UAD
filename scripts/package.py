@@ -9,14 +9,15 @@ if not module.is_file() or module.read_bytes()[:2]!=b'MZ':raise SystemExit('Expe
 out=root/'dist';out.mkdir(exist_ok=True)
 stage=out/'VocaBox-Windows-x64';stage.mkdir(exist_ok=True)
 shutil.copytree(args.bundle,stage/'VocaBox.vst3',dirs_exist_ok=True)
-for f in ['README.md','VALIDATION.md']:shutil.copy2(root/f,stage/f)
+for f in ['README.md','VALIDATION.md','UI_CHANGES.md']:shutil.copy2(root/f,stage/f)
 shutil.copytree(root/'THIRD_PARTY',stage/'THIRD_PARTY',dirs_exist_ok=True)
+shutil.copytree(root/'Review',stage/'Review',dirs_exist_ok=True)
 shutil.copy2(root/'Resources/PRESET_MAP.csv',stage/'PRESET_MAP.csv')
 with zipfile.ZipFile(out/'VocaBox-Windows-x64.zip','w',zipfile.ZIP_DEFLATED) as z:
  for f in sorted(stage.rglob('*')):
   if f.is_file():z.write(f,f.relative_to(stage))
 with zipfile.ZipFile(out/'VocaBox-Source.zip','w',zipfile.ZIP_DEFLATED) as z:
- for name in ['CMakeLists.txt','.github','.gitignore','README.md','VALIDATION.md','voxbox.html','Source','Resources','Tests','scripts','cmake','THIRD_PARTY']:
+ for name in ['CMakeLists.txt','.github','.gitignore','README.md','VALIDATION.md','UI_CHANGES.md','Review','voxbox.html','Source','Resources','Tests','scripts','cmake','THIRD_PARTY']:
   path=root/name
   for f in ([path] if path.is_file() else sorted(path.rglob('*'))):
    if f.is_file() and '__pycache__' not in f.parts:z.write(f,Path('VocaBox')/f.relative_to(root))

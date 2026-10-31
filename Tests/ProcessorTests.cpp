@@ -11,6 +11,9 @@ int main(){juce::ScopedJuceInitialiser_GUI gui;try{
  }
  const auto esquerda=posicionarPresetsExternos({500,80,1192,420},{389,484},{0,0,1920,1040});if(esquerda.getRight()>500||esquerda.getY()!=80)throw std::runtime_error("Left placement not preferred");
  const auto pequena=posicionarPresetsExternos({0,0,1192,420},{389,484},{0,0,1024,768});if(!juce::Rectangle<int>(0,0,1024,768).contains(pequena))throw std::runtime_error("Floating browser off small screen");
+ const auto fonte=fonteInterface();
+ if(!fonte.getTypefacePtr()->getName().startsWith("Inter"))throw std::runtime_error("Embedded Inter font unavailable");
+ if(std::abs(fonte.getStringWidthFloat(tema::fontes::amostraMetrica)-tema::fontes::tamanho*tema::fontes::larguraAmostraEm)>.1f)throw std::runtime_error("Native font differs from CSS pixel metrics");
  VocaProcessor p;p.prepareToPlay(48000,256);
  if(p.getNumPrograms()<50)throw std::runtime_error("Preset bank missing");
  for(int i=0;i<p.getNumPrograms();++i){p.setCurrentProgram(i);for(const auto& spec:specs){const auto expected=(float)p.bank[(size_t)i].settings.getProperty(spec.id,spec.initial);if(std::abs(p.value(spec.id)-expected)>0.001f)throw std::runtime_error("Preset mapping mismatch");}}
@@ -32,5 +35,5 @@ int main(){juce::ScopedJuceInitialiser_GUI gui;try{
  selecionarTag("Vocal");selecionarTag("Heavy");int esperados=0;for(auto& item:reaberto.bank)if(item.tags.contains("Vocal")&&item.tags.contains("Heavy"))++esperados;if(lista->getListBoxModel()->getNumRows()!=esperados)throw std::runtime_error("Native AND filters failed");limpar->onClick();
 const auto captura=navegador.createComponentSnapshot(navegador.getLocalBounds());if(auto stream=juce::File::getCurrentWorkingDirectory().getChildFile("presets-preview.png").createOutputStream()){stream->setPosition(0);stream->truncate();juce::PNGImageFormat formato;formato.writeImageToStream(captura,*stream);}
  }arquivo.deleteFile();
- std::cout<<"PASS: "<<p.getNumPrograms()<<" presets × 25 parameters, host state serialization, audio processing.\n";
+ std::cout<<"PASS: embedded Inter 14 px, browser placement and filtering, user library persistence; "<<p.getNumPrograms()<<" presets × 25 parameters, host state serialization, audio processing.\n";
  }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

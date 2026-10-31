@@ -2,7 +2,7 @@
 #include "BinaryData.h"
 #include "NavegadorPresets.h"
 #include "PosicaoPresets.h"
-static juce::Colour cream(){return juce::Colour(0xfff0ead6);}
+static juce::Colour cream(){return juce::Colour(tema::cores::tinta);}
 void VocaLook::drawRotarySlider(juce::Graphics& g,int x,int y,int w,int h,float position,float start,float end,juce::Slider& slider){
  juce::ignoreUnused(start,end);
  static const auto atlas=juce::ImageCache::getFromMemory(BinaryData::knobs_png,BinaryData::knobs_pngSize);
@@ -33,6 +33,7 @@ public:
    const auto painel=editor.getScreenBounds();
    const auto* monitor=juce::Desktop::getInstance().getDisplays().getDisplayForRect(painel);
    const auto areaUtil=monitor?monitor->userArea:painel.expanded(getWidth()+6,getHeight()+6);
+   getContentComponent()->setSize(tema::presets::largura,juce::jmin(tema::presets::altura,juce::jmax(360,areaUtil.getHeight()-24)));
    setBounds(posicionarPresetsExternos(painel,{getWidth(),getHeight()},areaUtil));
   }
   setVisible(true);toFront(true);
@@ -40,7 +41,7 @@ public:
  void closeButtonPressed()override{setVisible(false);}
  void mouseDown(const juce::MouseEvent& evento)override{
   const auto ponto=evento.getEventRelativeTo(getContentComponent()).position;
-  arrastando=evento.mods.isLeftButtonDown()&&ponto.y>=0&&ponto.y<30&&ponto.x>=0&&ponto.x<getContentComponent()->getWidth()-30;
+  arrastando=evento.mods.isLeftButtonDown()&&ponto.y>=0&&ponto.y<tema::presets::cabecalho&&ponto.x>=0&&ponto.x<getContentComponent()->getWidth()-30;
   if(arrastando)arrastador.startDraggingComponent(this,evento);
  }
  void mouseDrag(const juce::MouseEvent& evento)override{if(arrastando)arrastador.dragComponent(this,evento,&limites);}
@@ -68,17 +69,21 @@ void VocaEditor::resized(){
  for(auto& lever:levers){const auto& s=lever->spec;lever->setBounds((int)s.x-8,46+(int)s.y-12,16,25);}
 }
 void VocaEditor::paint(juce::Graphics& g){
- g.fillAll(juce::Colour(0xff45444c));g.setImageResamplingQuality(juce::Graphics::highResamplingQuality);g.drawImage(face,juce::Rectangle<float>(0,46,1192,330));g.setColour(cream());g.setFont(11);g.drawText("VOCABOX  |  OPTICAL CHANNEL STRIP",810,10,360,25,juce::Justification::centredRight);
- g.setColour(juce::Colour(0xff2d2c32));g.fillRect(1,377,1190,42);g.setColour(cream());g.drawText("VOCABOX  |  AUDIO ACTIVE  |  GR "+juce::String(processor.compressorGR.load(),1)+" dB  |  D-S "+juce::String(processor.deesserGR.load(),1)+" dB",8,379,1176,32,juce::Justification::centred);
- const bool power=processor.value("power")>.5f;g.setColour(power?juce::Colours::red:juce::Colour(0xff3d1716));g.fillEllipse(152,46+114,8,8);g.setColour(power&&processor.value("bypass")<.5f?juce::Colours::red:juce::Colour(0xff3d1716));g.fillEllipse(1053,46+63,8,8);
+ g.fillAll(juce::Colour(tema::cores::barra));g.setImageResamplingQuality(juce::Graphics::highResamplingQuality);g.drawImage(face,juce::Rectangle<float>(0,46,1192,330));g.setColour(cream());g.setFont(11);g.drawText("VOCABOX  |  OPTICAL CHANNEL STRIP",810,10,360,25,juce::Justification::centredRight);
+ g.setColour(juce::Colour(tema::cores::rodape));g.fillRect(1,377,1190,42);g.setColour(cream());g.drawText("VOCABOX  |  AUDIO ACTIVE  |  GR "+juce::String(processor.compressorGR.load(),1)+" dB  |  D-S "+juce::String(processor.deesserGR.load(),1)+" dB",8,379,1176,32,juce::Justification::centred);
+ const bool power=processor.value("power")>.5f;g.setColour(power?juce::Colour(tema::cores::vermelho):juce::Colour(tema::cores::ledApagado));g.fillEllipse(152,46+114,8,8);g.setColour(power&&processor.value("bypass")<.5f?juce::Colour(tema::cores::vermelho):juce::Colour(tema::cores::ledApagado));g.fillEllipse(1053,46+63,8,8);
  // Meter clips to the amber window and reports actual DSP levels/reduction.
  juce::Graphics::ScopedSaveState saved(g);
- g.addTransform(juce::AffineTransform::scale(185.f/220.f).translated(285,46+31));
- juce::Path clip;clip.startNewSubPath(15,43);clip.quadraticTo(111,6,205,36);clip.quadraticTo(209,37,208,41);clip.lineTo(195,85);clip.quadraticTo(194,89,190,88);clip.quadraticTo(111,72,32,90);clip.quadraticTo(28,90,27,86);clip.lineTo(12,48);clip.quadraticTo(11,44,15,43);clip.closeSubPath();g.reduceClipRegion(clip);
- if(!power){g.setColour(juce::Colours::black.withAlpha(.65f));g.fillRect(0,0,220,106);}
- const auto pivot=juce::Point<float>(110,140);const auto end=pivot+juce::Point<float>(std::sin(juce::degreesToRadians(needle)),-std::cos(juce::degreesToRadians(needle)))*114;
- g.setColour(juce::Colour(0x405c3c12));g.drawLine({pivot.translated(.6f,.3f),end.translated(.6f,.3f)},1.1f);
- g.setColour(juce::Colour(0xff29220f));g.drawLine({pivot,end},1.1f);
+ g.addTransform(juce::AffineTransform::scale(tema::vu::largura/tema::vu::larguraBase).translated(2+tema::vu::x,46+2+tema::vu::y));
+ static const auto recorte=juce::Drawable::parseSVGPath(tema::vu::aberturaPath);g.reduceClipRegion(recorte);
+ if(!power){g.setColour(juce::Colours::black.withAlpha(.65f));g.fillRect(0.f,0.f,tema::vu::larguraBase,tema::vu::alturaBase);}
+ const auto pivo=juce::Point<float>(tema::vu::pivoX,tema::vu::pivoY);
+ const auto direcao=juce::Point<float>(std::sin(juce::degreesToRadians(needle)),-std::cos(juce::degreesToRadians(needle)));
+ const auto ponta=pivo+direcao*tema::vu::agulhaComprimento;
+ g.setColour(juce::Colour(tema::vu::agulhaSombraCor).withAlpha(.25f));g.drawLine({pivo.translated(.5f,.3f),ponta.translated(.5f,.3f)},tema::vu::agulhaEspessura);
+ g.setColour(juce::Colour(tema::vu::agulhaCor));g.drawLine({pivo,ponta},tema::vu::agulhaEspessura);
+ g.setColour(juce::Colour(tema::vu::agulhaPonta));g.drawLine({ponta-direcao*6.f,ponta},tema::vu::agulhaEspessura);
+
 }
 void VocaEditor::updateProgram(){presetsButton.setButtonText(processor.getProgramName(processor.getCurrentProgram())+" v");bypass.setButtonText(processor.value("bypass")>.5f?"BYPASS":"IN");}
 void VocaEditor::timerCallback(){

@@ -17,7 +17,7 @@ else()
  FetchContent_MakeAvailable(JUCE)
  set(JUCE_SOURCE_DIR "${juce_SOURCE_DIR}")
 endif()
-juce_add_binary_data(VocaResources SOURCES Resources/face.png Resources/presets.json Resources/knobs.png)
+juce_add_binary_data(VocaResources SOURCES Resources/face.png Resources/presets.json Resources/knobs.png Resources/InterSemiBold.ttf)
 juce_add_plugin(VocaBox
  COMPANY_NAME "VocaBox Project" BUNDLE_ID "org.vocabox.channelstrip"
  PLUGIN_MANUFACTURER_CODE VcBx PLUGIN_CODE Vb01
@@ -32,12 +32,17 @@ target_link_libraries(VocaBox PRIVATE VocaResources juce::juce_audio_utils PUBLI
 if(MINGW)
  target_link_options(VocaBox_VST3 PRIVATE -static-libgcc -static-libstdc++ -static)
 endif()
-if(BUILD_TESTING AND NOT CMAKE_CROSSCOMPILING)
+if(BUILD_TESTING)
  add_executable(vocabox_processor_tests Tests/ProcessorTests.cpp)
  target_link_libraries(vocabox_processor_tests PRIVATE VocaBox VocaResources)
  target_include_directories(vocabox_processor_tests PRIVATE $<TARGET_PROPERTY:VocaBox,INCLUDE_DIRECTORIES>)
  target_compile_definitions(vocabox_processor_tests PRIVATE $<TARGET_PROPERTY:VocaBox,COMPILE_DEFINITIONS>)
- add_test(NAME Processor COMMAND vocabox_processor_tests)
+ if(MINGW)
+  target_link_options(vocabox_processor_tests PRIVATE -static-libgcc -static-libstdc++ -static)
+ endif()
+ if(NOT CMAKE_CROSSCOMPILING)
+  add_test(NAME Processor COMMAND vocabox_processor_tests)
+ endif()
 endif()
 
 if(BUILD_TESTING)

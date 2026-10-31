@@ -1,1 +1,1 @@
-9c2f98347b4283f0dcd363e065c34a11f7f6525bd8db8ad35e50c70e3f7e6f79  VocaBox-Windows-x64.zip
+62d9d1df49dea21f92ba5e7ea3bc23943ed1366e270409c27c716854ee3928e5  VocaBox-Windows-x64.zip

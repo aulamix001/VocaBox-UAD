@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Manley VOXBOX</title>
+<style>
+:root{--panel-top:#6e6ca3;--panel-bottom:#5b5a8f;--ink:#f0ead6;--black:#222320;--chrome:#d7d9cf;--page:#202024;--toolbar:#45444c;--red:#f42b26;--amber:#ffbd37;--muted:#b4b1ba}
+*{box-sizing:border-box}body{margin:0;background:var(--page);min-height:100vh;display:grid;place-items:center;font-family:Arial,Helvetica,sans-serif;color:var(--ink)}#viewport{width:100%;overflow:hidden}#plugin{width:1192px;height:420px;transform-origin:top left;user-select:none}.toolbar{height:46px;background:var(--toolbar);border:2px solid #77747c;display:flex;align-items:center;gap:5px;padding:6px}.toolbar button,.toolbar select,.bottom button{background:linear-gradient(#35343b,#2c2b30);border:1px solid #242329;color:#dedde0;border-radius:2px;height:28px;font: bold 11px Arial;padding:0 10px}.toolbar button:hover,.bottom button:hover{filter:brightness(1.3)}.toolbar select{width:276px;margin-right:1px;text-align:center}.toolbar .spacer{flex:1}.toolbar .active{color:#dab34e}.face{height:330px;position:relative;isolation:isolate;background:linear-gradient(var(--panel-top),var(--panel-bottom));border:2px solid #a09db8;box-shadow:inset 0 2px 2px #c5c2d04f,inset 0 -3px 4px #26243b;overflow:hidden}.metal{position:absolute;inset:0;z-index:-1;background:repeating-linear-gradient(0deg,#ffffff0b 0px,#ffffff0b .6px,#16172714 .9px,transparent 1.5px,transparent 3px);}.metal:after{content:"";position:absolute;inset:0;filter:url(#grain);opacity:.09}svg.art{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.panel{fill:url(#glass);stroke:#11120f;stroke-width:1.3}.silk{fill:var(--ink);font-family:Arial,sans-serif;font-size:10px}.small{font-size:9px}.label{position:absolute;font-size:10px;text-align:center;white-space:nowrap;transform:translateX(-50%);line-height:1.2}.control{position:absolute;touch-action:none;outline:none}.control:focus-visible{outline:1px solid var(--ink);outline-offset:5px;border-radius:50%}.knob{border-radius:50%;background:repeating-radial-gradient(circle at 50% 50%,transparent 0 2px,#0003 2.3px 2.8px),radial-gradient(circle at 35% 22%,#454642 0,#242521 42%,#171815 77%,#080907 100%);box-shadow:2px 4px 5px #0009,inset 0 1px 1px #90918b70,inset 0 -2px 3px #000;cursor:ns-resize}.rotor{position:absolute;inset:0;border-radius:50%;transform:rotate(var(--rotation));background:linear-gradient(90deg,transparent 30%,#0004 34%,#55565070 44%,#242520 51%,#08090880 62%,transparent 67%)}.pointer{position:absolute;width:2px;height:42%;top:3%;left:calc(50% - 1px);background:var(--ink);box-shadow:0 0 1px #fff}.toggle{width:16px;height:25px;cursor:pointer;border-radius:5px}.toggle:before{content:'';position:absolute;left:2px;top:8px;width:12px;height:13px;border-radius:50%;background:radial-gradient(ellipse,#282923 25%,#d6d8c7 35%,#696c61 50%,#e5e5d4 60%,#30342b 73%);box-shadow:1px 2px 2px #000}.lever{position:absolute;width:5px;height:13px;left:6px;top:0;border-radius:4px;background:linear-gradient(90deg,#5c5d53,#f3f0d9,#93978a);border:1px solid #37392d;box-shadow:1px 2px 2px #000;transform-origin:50% 15px;transform:rotate(var(--tilt));transition:transform .13s}.led{position:absolute;width:8px;height:8px;border:1px solid #130606;border-radius:50%;background:#3d1716;box-shadow:inset 1px 1px 2px #000}.led.on{background:var(--red);box-shadow:0 0 5px #f32b2655,inset 1px 1px 2px #ff9292}.logo{position:absolute;left:280px;top:120px;width:185px;text-align:center;font-family:Georgia,'Times New Roman',serif;font-weight:normal;font-size:40px;line-height:.98;letter-spacing:1px;color:#b9b8cd;text-shadow:0 1px #242337,0 -1px #f0edf7}.logo span{display:block;font-size:41px}.meter{position:absolute;left:283px;top:29px;width:185px;height:81px;filter:drop-shadow(1px 3px 2px #0009)}.meter .lamp{transition:opacity .3s}.face.off .lamp{opacity:.35}.bottom{height:44px;border:2px solid #85828f;background:var(--toolbar);display:flex;justify-content:center;align-items:center;gap:6px;font-size:11px;letter-spacing:.6px}.bottom .status{padding:7px 65px;background:#34333b;border:1px solid #29282f}.bottom .buy{background:#2669a5}.tooltip{position:absolute;z-index:10;pointer-events:none;background:#111e;color:var(--ink);padding:4px 7px;border:1px solid #777;font-size:11px;white-space:nowrap;border-radius:3px;display:none}
+
+/* Preset browser is outside the scaled face so it stays usable on small screens. */
+:root{--browser-bg:#45444b;--browser-well:#1d1d20;--browser-border:#111115;--browser-line:#64636a;--browser-text:#e7e6e9;--browser-muted:#a5a4aa}
+.preset-dialog{padding:0;width:390px;max-width:calc(100vw - 16px);height:626px;max-height:calc(100dvh - 16px);color:var(--browser-text);background:var(--browser-bg);border:1px solid var(--browser-border);border-radius:4px;box-shadow:0 4px 18px #0009;font:12px Arial;overflow:hidden}
+.preset-dialog::backdrop{background:#0004}.browser-layout{height:100%;display:flex;flex-direction:column}.browser-title{height:33px;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;font-size:12px;margin:0;text-shadow:0 1px #111}.preset-dialog button{font: bold 11px Arial;color:var(--browser-text);cursor:pointer}.browser-close{position:absolute;right:4px;top:3px;border:0;background:none;color:#bdc9cd!important;font-size:24px!important;line-height:24px}.browser-search{margin:1px 5px 5px;position:relative}.browser-search:before{content:'⌕';position:absolute;font-size:27px;color:#98a2a7;left:10px;top:0}.browser-search input{width:100%;height:38px;padding:0 12px 0 35px;border:1px solid #29282d;background:var(--browser-well);color:var(--browser-text);border-radius:3px;outline-offset:-2px}.browser-tags{margin:0 5px 5px;padding:0 5px 5px;background:#303035;border:1px solid #26252b;border-radius:3px;height:207px;flex-shrink:0}.browser-tabs{display:flex;height:39px;align-items:stretch;border-bottom:2px solid #4c4b51;gap:5px}.browser-tabs button{background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;flex:1;text-align:left;padding:0 6px}.browser-tabs button.active{border-color:var(--browser-text)}.browser-tabs button:last-child{flex:0 0 130px}.star-icon{float:right;font-size:22px;font-weight:normal;color:#a0adb2;line-height:12px}.tag-columns{display:flex;justify-content:space-around;height:31px;align-items:center;color:var(--browser-muted);font-weight:bold;font-size:11px}.tag-columns span:first-child{color:var(--browser-text)}.tag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;max-height:132px;overflow:auto;padding-right:4px}.tag-grid button{height:29px;background:linear-gradient(#252529,#202023);border:1px solid #18181c;border-radius:2px}.tag-grid button.active{background:#62616d;border-color:#b6b2c5}.preset-dialog ::-webkit-scrollbar{width:9px}.preset-dialog ::-webkit-scrollbar-track{background:#26252b}.preset-dialog ::-webkit-scrollbar-thumb{background:#55545e;border:1px solid #111;border-radius:2px}.browser-library{margin:0 5px 5px;border:1px solid #111;background:var(--browser-well);padding:4px;min-height:100px;flex:1;display:flex;flex-direction:column;border-radius:3px}.browser-selection{background:#303034;border:1px solid #515057;padding:5px 6px}.selected-line{display:flex;align-items:center;gap:5px;margin-bottom:6px}.selected-line input{background:transparent;border:1px solid transparent;color:var(--browser-text);font:bold 12px Arial;text-align:center;height:20px;min-width:0;flex:1}.selected-line input:focus{border-color:#a5a2b6;outline:0}.favorite-button{background:none;border:0;font-size:24px!important;color:#9ba9ae!important;width:30px;line-height:20px}.favorite-button[aria-pressed=true]{color:#e4c16c!important}.browser-actions{display:flex;gap:5px}.browser-actions button{flex:1;height:30px;background:#454549;border:1px solid #626167;border-radius:2px}.preset-dialog button:disabled{opacity:.3;cursor:default}.preset-list{overflow:auto;flex:1;min-height:0;padding-top:6px}.preset-row{display:block;text-align:left;width:100%;min-height:33px;padding:8px 9px;background:transparent;border:0;border-radius:2px}.preset-row:hover{background:#35343c}.preset-row.selected{background:#46444f}.preset-row small{display:block;font:10px Arial;color:var(--browser-muted);margin-top:3px}.browser-note{color:var(--browser-muted);font-size:10px;padding:5px 8px;min-height:22px}.empty-presets{padding:16px 8px;color:var(--browser-muted)}
+
+.browser-tags.nested{height:242px}.browser-tabs #clearTags{flex:0 0 24px;padding:0;font-size:20px;color:#bdc9cd}.browser-tabs #clearTags[hidden]{display:none}#chosenTag:empty{display:none}#chosenTag{height:37px;border-bottom:1px solid #45444b;margin-bottom:5px}#chosenTag button{height:29px;width:112px;background:#48474e;border:1px solid #626168;border-radius:2px}.browser-tags.nested .tag-grid{max-height:132px}
+
+/* Navegador compacto e pele compartilhada em resolução tripla. */
+:root{--browser-bg:#222225;--browser-well:#111113;--browser-border:#3a3a3d;--browser-line:#3c3c40;--browser-text:#efeff1;--browser-muted:#96969d}
+.knob{background:none;box-shadow:none;overflow:visible}
+.preset-dialog{width:385px;height:480px;border-radius:3px;background:linear-gradient(#252528,#1e1e20)}
+.browser-title{height:30px;font-size:11px}.browser-search{margin:0 8px 5px}.browser-search input{height:36px;border-color:var(--browser-border)}
+.browser-tags{height:auto;padding:0 7px 7px;margin:0 7px;background:transparent;border:0}.browser-tabs{height:28px;border:0;gap:0}.browser-tabs button{margin:0;padding:0 2px;border:0;font-size:10px}.browser-tabs button:last-child{flex:1;text-align:right}.browser-tabs #tagsTab{flex:0 0 43px}.browser-tabs #clearTags{flex:0 0 23px}.browser-tabs .star-icon{float:none;vertical-align:middle;margin-left:5px}.browser-tabs button.active{color:#fff}
+.tag-columns{height:29px;gap:0;border-bottom:1px solid #424246;justify-content:stretch;margin-bottom:6px}.tag-columns button{flex:1;height:100%;border:0;border-bottom:2px solid transparent;color:var(--browser-muted);background:none;font-size:10px}.tag-columns button.active{color:#fff;border-bottom-color:#fff}
+#chosenTag{height:auto;display:flex;gap:6px;flex-wrap:wrap;border:0;margin:0 0 6px}#chosenTag:empty{display:none}#chosenTag button{height:25px;width:auto;min-width:60px;padding:0 9px;background:#4a4a4f;border:1px solid #64646a}#chosenTag button:after{content:' ×';margin-left:10px}
+.tag-grid{gap:6px;max-height:130px;padding-right:4px;grid-auto-rows:28px}.tag-grid button{height:28px;background:#2a2a2d;border:1px solid #3c3c40;font-size:11px}.tag-grid button:hover{background:#38383c}.preset-dialog ::-webkit-scrollbar{width:5px}.preset-dialog ::-webkit-scrollbar-thumb{background:#505055;border:0}
+.browser-library{margin:0 8px 7px;padding:0;border:0;min-height:120px;background:transparent}.browser-selection{background:#2c2c30;border:0;padding:0 0 6px}.selected-line{margin:0 0 5px;height:25px}.selected-line input{font-size:11px}.browser-actions{gap:5px}.browser-actions button{background:#3a3a3e;border-color:#3c3c40;height:30px;font-size:11px}.browser-actions button:hover{background:#38383c}
+.preset-list{background:#19191c;padding:0;min-height:32px}.linha-preset{display:flex;height:32px}.linha-preset:hover{background:#38383c}.linha-preset.selected{background:#4a4a4f}.preset-row{height:32px;min-height:32px;padding:0 12px;font:bold 11px Arial;flex:1;min-width:0}.preset-row:hover{background:transparent}.favorito-linha{background:none;border:0;width:28px;font-size:17px!important;opacity:0}.linha-preset:hover .favorito-linha,.favorito-linha[aria-pressed=true],.favorito-linha:focus-visible{opacity:1}.browser-note{font-size:9px;padding:3px 2px;min-height:17px}.sem-tags{grid-column:1/-1;font-size:10px;color:var(--browser-muted)}
+.value-dialog{background:#252528;color:#efeff1;border:1px solid #55555c;border-radius:3px;padding:18px;font:12px Arial}.value-dialog input{display:block;background:#111113;color:#fff;border:1px solid #55555c;padding:8px;margin:10px 0;width:180px}.value-dialog button{background:#3c3c40;color:#fff;border:1px solid #666;padding:7px 12px;margin-right:5px}
+</style></head><body><div id="viewport"><main id="plugin" aria-label="Manley VOXBOX channel strip">
+<header class="toolbar"><button id="prev" aria-label="Previous preset">❮</button><button id="next" aria-label="Next preset">❯</button><button id="preset" aria-haspopup="dialog" style="width:276px;text-align:center">Default ▾</button><button id="bypass" class="active">IN</button><button id="compare">Compare</button><button id="copy">COPY</button><button id="paste">PASTE</button><span class="spacer"></span><button id="learn">◉ LEARN</button><button id="menu" aria-label="Reset all controls">•••</button></header>
+<section class="face" id="face" aria-label="VOXBOX front panel"><div class="metal"></div>
+<svg class="art" viewBox="0 0 1188 326" aria-hidden="true"><defs><filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".012 .8" numOctaves="2" seed="8" result="noise"/><feColorMatrix in="noise" type="saturate" values="0"/></filter><linearGradient id="glass" x2="0" y2="1"><stop stop-color="#30312c"/><stop offset=".2" stop-color="#252622"/><stop offset=".5" stop-color="#20211e"/><stop offset="1" stop-color="#292a25"/></linearGradient><radialGradient id="screw"><stop stop-color="#f0f0d9"/><stop offset=".4" stop-color="#b6bca8"/><stop offset=".6" stop-color="#454b3d"/><stop offset=".8" stop-color="#d4d6c1"/><stop offset="1" stop-color="#5c6254"/></radialGradient></defs>
+<path class="panel" d="M110 22 Q110 7 126 7 H175 Q185 7 190 18 L341 302 Q347 314 331 314 H124 Q110 314 110 300Z"/><path class="panel" d="M565 17 Q570 7 581 7 H625 Q640 7 640 21 V301 Q640 314 626 314 H419 Q404 314 411 300Z"/><path class="panel" d="M675 7 H878 Q923 7 940 44 Q957 83 929 109 Q916 122 883 122 H677 Q662 122 662 108 V22 Q662 7 675 7Z"/><path class="panel" d="M678 138 H990 Q1031 138 1058 174 Q1077 201 1077 231 Q1077 283 1043 302 Q1024 314 984 314 H677 Q662 314 662 299 V154 Q662 138 678 138Z"/>
+<g id="hardware"></g><g id="scales" class="silk"></g></svg>
+<svg class="meter" viewBox="0 0 185 90" aria-label="Animated VU meter"><defs><linearGradient id="amber" x2="0" y2="1"><stop stop-color="#e9850c"/><stop offset=".6" stop-color="#ffbe32"/><stop offset="1" stop-color="#ffd66c"/></linearGradient><linearGradient id="reflection" x2="0" y2="1"><stop stop-color="#fff" stop-opacity=".22"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><path d="M3 33 Q92 -9 182 33 Q187 39 179 54 L166 77 Q163 83 154 78 Q94 59 29 79 Q22 82 17 73 L3 48Q-2 39 3 33" fill="#242426" stroke="#8b879b" stroke-width="4"/><path class="lamp" d="M5 34 Q92 -5 179 34 L163 76 Q93 54 23 77Z" fill="url(#amber)"/><g id="vuScale" fill="#211807" font-family="Arial" font-size="10"></g><path d="M132 37 L158 49 L153 58 L126 44" fill="none" stroke="#b6301b" stroke-width="4"/><clipPath id="meterClip"><path d="M5 34 Q92 -5 179 34 L163 76 Q93 54 23 77Z"/></clipPath><g clip-path="url(#meterClip)"><g id="needle" style="transform-origin:92px 122px"><path d="M92 122 L92 29" stroke="#282014" stroke-width="1.3"/></g></g><path d="M5 34 Q92 -5 179 34 L163 76 Q93 54 23 77Z" fill="url(#reflection)"/></svg>
+<div class="logo">MANLEY<span>VOXBOX</span></div><div id="powerLed" class="led on" style="left:152px;top:114px"></div><div id="readyLed" class="led on" style="left:1053px;top:63px"></div><div class="tooltip" id="tooltip"></div>
+</section><footer class="bottom"><span class="status" id="status">UAD-2 · DEMO (14 DAYS)</span><button id="info">INFO</button><button class="buy" id="buy">BUY</button></footer></main></div>
+
+<dialog id="presetBrowser" class="preset-dialog" aria-labelledby="browserTitle"><div class="browser-layout">
+<h2 class="browser-title" id="browserTitle">MANLEY VOXBOX CS PRESETS<button class="browser-close" aria-label="Close presets">×</button></h2>
+<div class="browser-search"><input id="presetSearch" type="search" aria-label="Search presets"></div>
+<section class="browser-tags" aria-label="Preset filters"><nav class="browser-tabs"><button id="tagsTab" aria-expanded="true">TAGS ▾</button><button id="clearTags" aria-label="Clear tag filters">×</button><button id="favoritesTab" aria-pressed="false">FAVORITES <span class="star-icon">☆</span></button></nav>
+<div id="tagFilters"><div class="tag-columns" role="tablist"><button data-aba="TYPE" role="tab">TYPE</button><button data-aba="ARTIST" role="tab">ARTIST</button><button data-aba="ALL" role="tab">ALL</button></div><div id="chosenTag"></div><div class="tag-grid" id="tagGrid"></div></div></section>
+<section class="browser-library" aria-label="Preset library"><div class="browser-selection"><div class="selected-line"><input id="presetName" aria-label="Preset name" value="Default" maxlength="80"><button id="favoritePreset" class="favorite-button" aria-label="Favorite preset" aria-pressed="false">☆</button></div><div class="browser-actions"><button id="deletePreset">DELETE</button><button id="renamePreset">RENAME</button><button id="savePreset">SAVE</button></div></div><div id="presetList" class="preset-list"></div><div id="browserNote" class="browser-note" role="status"></div></section>
+</div></dialog>
+<dialog id="confirmDelete" class="value-dialog"><p>Excluir “<span id="deleteName"></span>”?</p><button id="cancelDelete">Cancelar</button><button id="confirmDeleteButton">Excluir</button></dialog>
+<dialog id="knobValueDialog" class="value-dialog"><form id="knobValueForm"><label id="knobValueTitle" for="knobValue"></label><input id="knobValue" type="number" required><button type="button" id="cancelKnobValue">Cancelar</button><button type="submit">Aplicar</button></form></dialog>
+<script>
+'use strict';
+// Coordinates are in the fixed 1192 × 330 face space. Every knob uses this same component.
+const state={power:1,hpf:0,phase:0,source:0,input:5,gain:45,link:0,compress:1,threshold:5,attack:2,release:2,meter:0,deess:1,deFreq:1,deThreshold:5,output:0,eq:1,lowPeak:0,midDip:0,hiPeak:0,xfmr:1,lowFreq:4,midFreq:4,hiFreq:5,bypass:0};
+const defaults={...state}, controls=new Map(), face=document.querySelector('#face'), scales=document.querySelector('#scales'), NS='http://www.w3.org/2000/svg';let clipboard=null;
+function svg(tag,attrs,parent=scales){const e=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));parent.append(e);return e}
+function text(x,y,t,size=9,parent=scales){const e=svg('text',{x,y,'text-anchor':'middle','font-size':size},parent);e.textContent=t;return e}
+function label(x,y,t){const e=document.createElement('div');e.className='label';e.style.cssText=`left:${x}px;top:${y}px`;e.innerHTML=t;face.append(e)}
+function tip(el,c){const t=document.querySelector('#tooltip');t.textContent=c.name+': '+(c.labels?c.labels[Math.round(state[c.id])]:Number(state[c.id].toFixed(1))+(c.unit||''));t.style.left=(parseFloat(el.style.left)-10)+'px';t.style.top=(parseFloat(el.style.top)+parseFloat(el.style.width)+7)+'px';t.style.display='block'}
+function hideTip(){document.querySelector('#tooltip').style.display='none'}
+function commit(c,v){if(!Number.isFinite(v))return;v=Math.max(c.min,Math.min(c.max,v));if(c.steps)v=c.min+Math.round((v-c.min)/c.steps)*c.steps;state[c.id]=v;render()}
+function Knob(c){c={min:0,max:10,size:48,start:-135,end:135,...c};c.size=['source','input','gain'].includes(c.id)?64:(c.size<40?34:48);const e=document.createElement('div');e.className='control knob';e.tabIndex=0;e.setAttribute('role','slider');e.setAttribute('aria-label',c.name);e.style.cssText=`left:${c.x-c.size/2}px;top:${c.y-c.size/2}px;width:${c.size}px;height:${c.size}px`;e.innerHTML='<div class="rotor"><i class="pointer"></i></div>';face.append(e);c.el=e;controls.set(c.id,c);
+const count=c.scale?.length||(c.steps?Math.round((c.max-c.min)/c.steps)+1:11),r=c.radius||c.size/2+9;for(let i=0;i<count;i++){const a=(c.start+(c.end-c.start)*i/(count-1))*Math.PI/180;svg('line',{x1:c.x+Math.sin(a)*(r-(i%2?3:6)),y1:c.y-Math.cos(a)*(r-(i%2?3:6)),x2:c.x+Math.sin(a)*r,y2:c.y-Math.cos(a)*r,stroke:'#d8d8dc','stroke-width':'.8'});if(c.scale){text(c.x+Math.sin(a)*(r+10),c.y-Math.cos(a)*(r+10)+3,c.scale[i],c.font||9)}}
+if(c.ring)svg('circle',{cx:c.x,cy:c.y,r,fill:'none',stroke:'var(--ink)','stroke-width':'.8'});if(c.title!==false)label(c.x,c.titleY??c.y-c.size/2-21,c.name.toUpperCase());
+let drag=null;e.addEventListener('pointerdown',ev=>{if(ev.button!==0)return;ev.preventDefault();e.setPointerCapture(ev.pointerId);drag={y:ev.clientY,value:state[c.id]};tip(e,c)});e.addEventListener('pointermove',ev=>{if(!drag)return;const delta=(drag.y-ev.clientY)/(scaleFactor*140)*(c.max-c.min)*(ev.shiftKey?.15:1);drag.value+=delta;drag.y=ev.clientY;commit(c,drag.value);tip(e,c)});for(const evt of ['pointerup','pointercancel','lostpointercapture'])e.addEventListener(evt,()=>{drag=null;hideTip()});e.addEventListener('wheel',ev=>{ev.preventDefault();commit(c,state[c.id]+Math.sign(-ev.deltaY)*(c.steps||((c.max-c.min)/(ev.shiftKey?1000:100))));tip(e,c);clearTimeout(e.timer);e.timer=setTimeout(hideTip,900)},{passive:false});e.addEventListener('dblclick',()=>commit(c,defaults[c.id]));e.addEventListener('keydown',ev=>{let d=ev.key==='ArrowUp'||ev.key==='ArrowRight'?1:ev.key==='ArrowDown'||ev.key==='ArrowLeft'?-1:0;if(d){ev.preventDefault();commit(c,state[c.id]+d*(c.steps||(c.max-c.min)/(ev.shiftKey?1000:100)))}if(ev.key==='Home')commit(c,c.min);if(ev.key==='End')commit(c,c.max)});return c}
+function Toggle(id,x,y,name,labels){const e=document.createElement('div');e.className='control toggle';e.style.cssText=`left:${x-8}px;top:${y-12}px`;e.tabIndex=0;e.setAttribute('role','button');e.setAttribute('aria-label',name);e.innerHTML='<i class="lever"></i>';face.append(e);controls.set(id,{id,el:e,toggle:true,labels,min:0,max:labels.length-1,steps:1});function flip(){state[id]=(state[id]+1)%labels.length;render()}e.onclick=flip;e.onkeydown=ev=>{if(ev.key===' '||ev.key==='Enter'){ev.preventDefault();flip()}};e.ondblclick=ev=>ev.preventDefault()}
+// Rack slots and individually shaded Phillips screws.
+const hardware=document.querySelector('#hardware');for(const x of [18,1166])for(const y of [12,313])svg('rect',{x:x-13,y:y-8,width:27,height:17,rx:8,fill:'#030305',stroke:'#aaa8b4','stroke-width':1.3},hardware);
+for(const x of [85,1099])for(const y of [30,73,142,185,253,296]){svg('circle',{cx:x,cy:y,r:8,fill:'#34333d'},hardware);svg('circle',{cx:x,cy:y-1,r:6.4,fill:'url(#screw)',stroke:'#babcb1','stroke-width':'.5'},hardware);svg('path',{d:`M${x-3} ${y-1}h6 M${x} ${y-4}v6`,stroke:'#59604c','stroke-width':1.3},hardware)}for(const [x,y]of [[122,17],[122,303],[331,303],[420,303],[628,17],[628,303],[673,17],[833,17],[673,110],[833,110],[673,149],[673,303],[942,303]])svg('circle',{cx:x,cy:y,r:5,fill:'url(#screw)',stroke:'#555b49'},hardware);
+Toggle('power',154,49,'Power',['OFF','ON']);label(154,24,'ON');label(154,66,'POWER');Toggle('hpf',191,119,'High pass filter',['FLAT','80','120']);label(217,98,'120');label(217,114,'80');label(217,130,'FLAT');svg('path',{d:'M154 80v31 M183 93l5-10h20',stroke:'var(--ink)',fill:'none'});
+Toggle('phase',238,179,'Phase',['0°','180°']);label(239,155,'0°');label(239,197,'180°');
+Knob({id:'source',x:154,y:178,name:'Source',min:0,max:1,steps:1,start:65,end:115,scale:['',''],titleY:138});label(196,159,'LINE');label(196,188,'MIC');
+Knob({id:'input',x:154,y:273,name:'Input',ring:true});Knob({id:'gain',x:282,y:274,name:'Gain',min:40,max:60,steps:5,start:-135,end:-45,titleY:226});label(242,226,'dB');['60','55','50','45','40'].forEach((v,i)=>{text(232,249+i*15,v,10);svg('path',{d:`M241 ${245+i*15}h9l6 ${i<2?10:-7}`,stroke:'var(--ink)',fill:'none'})});
+Toggle('link',592,50,'Link',['SEPARATE','LINK']);label(592,23,'LINK');label(592,66,'SEPARATE');Toggle('compress',522,176,'Compressor',['BYPASS','COMPRESS 3:1']);label(522,154,'COMPRESS 3:1');label(522,198,'BYPASS');Knob({id:'threshold',x:592,y:178,name:'Threshold',ring:true,titleY:128});
+const times=['FAST','MED FAST','MEDIUM','MED SLOW','SLOW'];Knob({id:'attack',x:467,y:274,name:'Attack',min:0,max:4,steps:1,start:45,end:135,titleY:226});Knob({id:'release',x:596,y:274,name:'Release',min:0,max:4,steps:1,start:-45,end:-135,titleY:226});times.forEach((t,i)=>label(531,240+i*15,t));
+Knob({id:'meter',x:375,y:278,size:36,name:'Meter',min:0,max:3,steps:1,start:-65,end:65,title:false,scale:['LINE IN /\u2009G-R','PREOUT','EQ OUT','D-B'],font:8,radius:29});
+Toggle('deess',701,66,'De esser',['BYPASS','DE ESS']);label(700,40,'DE ESS');label(700,82,'BYPASS');Knob({id:'deFreq',x:777,y:65,name:'De ess frequency',min:0,max:4,steps:1,start:-65,end:65,title:false,scale:['3K','6K','9K','12K','LIMIT'],radius:34});label(822,53,'10:1');Knob({id:'deThreshold',x:883,y:65,name:'Threshold',ring:true,titleY:18});Knob({id:'output',x:999,y:65,name:'Output',min:-60,max:12,titleY:17,start:-225,end:45});label(999,28,'0');label(985,88,'-60');label(1021,88,'12dB');label(1058,29,'READY');
+Toggle('eq',701,173,'Equalizer',['BYPASS','EQ IN']);label(700,153,'EQ IN');label(700,195,'BYPASS');Toggle('xfmr',701,272,'Transformer',['BYPASS','XFMR IN']);label(700,251,'XFMR IN');label(700,290,'BYPASS');
+for(const [id,x,name,sign] of [['lowPeak',777,'Low Peak','+10'],['midDip',886,'Mid Dip','-10'],['hiPeak',995,'Hi Peak','+10']]){Knob({id,x,y:178,size:41,name,ring:true,titleY:133});label(x-19,216,'0dB');label(x+20,216,sign)}
+const frequencies=[['lowFreq',777,['20','35','50','70','100','150','200','300','500','700','1000']],['midFreq',886,['200','300','500','700','1000','1K5','2K','3K','4K','5K','7K']],['hiFreq',995,['1K5','2K','3K','4K','5K','6K4','8K','10K','12K','16K','20K']]];for(const [id,x,labels]of frequencies)Knob({id,x,y:274,size:37,name:id.replace('Freq',' frequency'),title:false,min:0,max:10,steps:1,labels,scale:labels,radius:27,start:-135,end:135});
+// Meter lettering follows the curved scale; the needle pivots below the window.
+const vu=document.querySelector('#vuScale');['20','10','7','5','3','2','1','0','1','2','3'].forEach((v,i)=>{const a=(-54+i*10.5)*Math.PI/180,x=92+Math.sin(a)*80,y=122-Math.cos(a)*99;text(x,y-8,v,10,vu);svg('line',{x1:x,y1:y-4,x2:92+Math.sin(a)*73,y2:122-Math.cos(a)*91,stroke:i>7?'#b52c18':'#33230d','stroke-width':1},vu)});
+function render(){for(const [id,c]of controls){if(c.toggle){c.el.style.setProperty('--tilt',`${c.labels.length===3?(state[id]-1)*22:state[id]?0:165}deg`);c.el.setAttribute('aria-pressed',String(!!state[id]));c.el.setAttribute('aria-label',id+': '+c.labels[state[id]])}else{c.el.style.setProperty('--rotation',`${c.start+(c.end-c.start)*(state[id]-c.min)/(c.max-c.min)}deg`);c.el.setAttribute('aria-valuemin',c.min);c.el.setAttribute('aria-valuemax',c.max);c.el.setAttribute('aria-valuenow',state[id]);c.el.setAttribute('aria-valuetext',c.labels?.[Math.round(state[id])]||String(state[id]))}}face.classList.toggle('off',!state.power);document.querySelector('#powerLed').classList.toggle('on',!!state.power);document.querySelector('#readyLed').classList.toggle('on',!!state.power&&!state.bypass);document.querySelector('#bypass').classList.toggle('active',!state.bypass);document.querySelector('#bypass').textContent=state.bypass?'BYPASS':'IN'}
+window.voxbox={getState:()=>({...state}),setState(next){if(!next||typeof next!=='object')return;for(const [id,c]of controls)if(Object.hasOwn(next,id)&&Number.isFinite(next[id])){const v=Math.max(c.min,Math.min(c.max,next[id]));state[id]=c.steps?c.min+Math.round((v-c.min)/c.steps)*c.steps:v}if(Object.hasOwn(next,'bypass'))state.bypass=next.bypass?1:0;render()}};
+let comparison={...defaults};document.querySelector('#compare').onclick=()=>{const old={...state};window.voxbox.setState(comparison);comparison=old};document.querySelector('#copy').onclick=()=>{clipboard={...state};document.querySelector('#status').textContent='SETTINGS COPIED'};document.querySelector('#paste').onclick=()=>{if(clipboard){window.voxbox.setState(clipboard);document.querySelector('#status').textContent='SETTINGS PASTED'}};document.querySelector('#bypass').onclick=()=>{state.bypass=1-state.bypass;render()};document.querySelector('#menu').onclick=()=>{window.voxbox.setState(defaults);preset.textContent='Default ▾';selectedId=loadedId='default';drawLibrary()};
+// Preset settings are explicit: unmapped reference names never change the panel.
+const preset=document.querySelector('#preset');
+const referenceNames=['Acoustic Gtr Heavy Comp','Acoustic Gtr Tuff Comp','Acoustic Gtr','Basic Female Vocal','Basic Male Vocal','Bass Big Muff Dist','Bass Fuzz & Comp','Bass Safe Comp'];
+let library=[{id:'default',name:'Default',tags:[],settings:{...defaults},factory:true},...referenceNames.map((name,i)=>({id:'reference-'+i,name,tags:[],settings:null,factory:true}))];
+// Dark factory bank transcribed from the supplied front-panel screenshots.
+// Continuous values are visual estimates (not exported UAD parameter values).
+// Frequency indices follow each knob's printed labels; timing indices run FAST → SLOW.
+const darkBank=[
+ {name:'Bass Big Muff Dist',settings:{source:1,input:6,gain:55,threshold:1,attack:3,release:1,meter:2,deess:1,deThreshold:0,output:-39,lowPeak:6.5,midDip:0.2,hiPeak:7.8,lowFreq:4,midFreq:0,hiFreq:0}},
+ {name:'Fat Snare',settings:{source:0,input:5,gain:60,threshold:2.8,attack:0,release:0,meter:0,deess:0,deThreshold:0.9,output:-36,lowPeak:7.4,midDip:9.1,hiPeak:6.9,lowFreq:4,midFreq:3,hiFreq:6}},
+ {name:'Hi-Fi Overheads',settings:{source:0,input:3.9,gain:40,compress:0,threshold:2,attack:0,release:0,meter:2,deess:1,deThreshold:10,output:6.7,lowPeak:8.7,midDip:3,hiPeak:5,lowFreq:3,midFreq:0,hiFreq:8}},
+ {name:'Hypster Bass',settings:{source:1,input:10,gain:60,threshold:1.9,attack:4,release:0,meter:2,deess:1,deThreshold:0.9,output:-39,lowPeak:8.7,midDip:10,hiPeak:8.3,xfmr:0,lowFreq:4,midFreq:3,hiFreq:2}},
+ {name:'Hypster Kick',settings:{source:0,hpf:1,input:8,gain:60,compress:0,threshold:0,attack:0,release:0,meter:2,deess:1,deFreq:2,deThreshold:2.8,output:-39,lowPeak:10,midDip:3.7,hiPeak:2.8,xfmr:0,lowFreq:3,midFreq:2,hiFreq:0}},
+ {name:'Hypster Overheads',settings:{source:0,input:10,gain:60,threshold:10,attack:1,release:0,meter:2,deess:1,deThreshold:2.2,output:-33.3,lowPeak:10,midDip:5,hiPeak:6.7,lowFreq:3,midFreq:0,hiFreq:2}},
+ {name:'Hypster Snare',settings:{source:0,hpf:2,input:6.5,gain:60,threshold:3.3,attack:0,release:0,meter:2,deess:1,deThreshold:0.9,output:-37.3,lowPeak:9.1,midDip:10,hiPeak:5,lowFreq:4,midFreq:2,hiFreq:7}},
+ {name:'Kick Drum Sweetener',settings:{source:0,input:4.3,gain:40,threshold:5,attack:4,release:0,meter:0,deess:0,deThreshold:1.5,output:0,lowPeak:7.8,midDip:4.6,hiPeak:5,lowFreq:2,midFreq:1,hiFreq:3}},
+ {name:'Rock Guitar',settings:{source:0,input:3.9,gain:60,threshold:2.6,attack:0,release:1,meter:0,deess:0,deThreshold:0,output:-36,lowPeak:9.4,midDip:6.5,hiPeak:2.8,lowFreq:7,midFreq:0,hiFreq:2}},
+ {name:'Synth Bass Sweetener',settings:{source:0,input:5.9,gain:60,threshold:2.6,attack:0,release:0,meter:0,deess:0,deThreshold:3.9,output:-37.3,lowPeak:2.8,midDip:5,hiPeak:3.5,lowFreq:3,midFreq:3,hiFreq:3}}
+];
+for(const [index,p] of darkBank.entries()){
+ const old=library.findIndex(item=>item.name===p.name);
+ const mapped={id:old>=0?library[old].id:'dark-'+index,name:p.name,tags:['Dark'],factory:true,
+  mapping:'visual-estimate',settings:{...defaults,power:1,hpf:0,phase:0,link:1,compress:1,deFreq:4,eq:1,xfmr:1,bypass:0,...p.settings}};
+ if(old>=0)library[old]=mapped;else library.push(mapped);
+}
+// Bass bank: reuse shared presets and add category membership without duplicates.
+for(const name of ['Bass Big Muff Dist','Hypster Bass','Synth Bass Sweetener']){
+ const shared=library.find(p=>p.name===name);
+ if(shared&&!shared.tags.includes('Bass'))shared.tags.push('Bass');
+}
+const bassBank=[
+ {name:'Hi-Fi Electric Bass',settings:{source:0,input:5,gain:60,threshold:2.6,attack:4,release:0,meter:2,deess:1,deFreq:4,deThreshold:1.1,output:-33.3,lowPeak:6.5,midDip:4.6,hiPeak:7.4,lowFreq:0,midFreq:3,hiFreq:3}},
+ {name:'Bass Fuzz & Comp',settings:{source:1,input:6,gain:55,threshold:3.7,attack:3,release:1,meter:0,deess:0,deFreq:2,deThreshold:0,output:-36,lowPeak:4.3,midDip:0,hiPeak:7.4,lowFreq:4,midFreq:0,hiFreq:0}},
+ {name:'Bass Safe Comp',settings:{source:0,input:6,gain:40,threshold:3.7,attack:4,release:1,meter:0,deess:0,deFreq:2,deThreshold:0,output:-24,lowPeak:3.3,midDip:0,hiPeak:7.4,lowFreq:4,midFreq:0,hiFreq:0}},
+ {name:'Bass Tuff Comp',settings:{source:0,input:8.1,gain:40,threshold:7.4,attack:3,release:2,meter:0,deess:1,deFreq:4,deThreshold:0,output:-16,lowPeak:4.6,midDip:0.7,hiPeak:8.1,xfmr:0,lowFreq:5,midFreq:0,hiFreq:2}}
+];
+for(const [index,p]of bassBank.entries()){
+ const old=library.findIndex(item=>item.name===p.name);
+ const mapped={id:old>=0?library[old].id:'bass-'+index,name:p.name,tags:['Bass'],factory:true,mapping:'visual-estimate',
+ settings:{...defaults,power:1,hpf:0,phase:0,link:1,compress:1,eq:1,xfmr:1,bypass:0,...p.settings}};
+ if(old>=0)library[old]=mapped;else library.push(mapped);
+}
+// Bass presets also belong to Dark; keep the Bass category intact.
+for(const p of library)if(p.tags.includes('Bass')&&!p.tags.includes('Dark'))p.tags.push('Dark');
+// Confirmed Dark → Snare membership from the supplied references.
+for(const name of ['Fat Snare','Hypster Snare']){
+ const p=library.find(item=>item.name===name);
+ if(p&&!p.tags.includes('Snare'))p.tags.push('Snare');
+}
+// Confirmed Dark → Kick membership from the supplied preset list.
+for(const name of ['Hypster Kick','Kick Drum Sweetener']){
+ const p=library.find(item=>item.name===name);
+ if(p&&!p.tags.includes('Kick'))p.tags.push('Kick');
+}
+// Confirmed Dark → De-Ess membership from the supplied references.
+for(const name of ['Hypster Kick','Hi-Fi Overheads','Rock Guitar','Synth Bass Sweetener']){
+ const p=library.find(item=>item.name===name);
+ if(p&&!p.tags.includes('De-Ess'))p.tags.push('De-Ess');
+}
+// Confirmed Dark → Mic membership from the supplied references.
+for(const name of ['Bass Big Muff Dist','Hypster Bass']){
+ const p=library.find(item=>item.name===name);
+ if(p&&!p.tags.includes('Mic'))p.tags.push('Mic');
+}
+// Vocal bank: continuous settings visually estimated from the supplied screenshots.
+const vocalBank=[
+ {name:'Medium Comp Male Voice',settings:{source:0,hpf:0,input:5.4,gain:40,threshold:3.9,attack:4,release:2,meter:0,deess:0,deFreq:2,deThreshold:0,output:-16,eq:1,lowPeak:5,midDip:0,hiPeak:7.4,lowFreq:4,midFreq:1,hiFreq:0}},
+ {name:'Medium Comp Rock Vocal',settings:{source:0,hpf:0,input:6.7,gain:40,threshold:3.9,attack:2,release:2,meter:2,deess:1,deFreq:2,deThreshold:0.7,output:-33.3,eq:1,lowPeak:5,midDip:0,hiPeak:7.8,lowFreq:5,midFreq:3,hiFreq:0}},
+ {name:'Telephone Vox',settings:{source:1,hpf:2,input:10,gain:60,threshold:10,attack:0,release:0,meter:2,deess:1,deFreq:4,deThreshold:1.9,output:-36,eq:1,xfmr:1,lowPeak:6.7,midDip:8.3,hiPeak:5.6,lowFreq:10,midFreq:9,hiFreq:0}},
+ {name:'Warm Male Vox',settings:{source:0,hpf:1,input:2.8,gain:60,threshold:5,attack:0,release:0,meter:2,deess:1,deFreq:0,deThreshold:3.9,output:-18.7,eq:1,xfmr:1,lowPeak:5,midDip:1.1,hiPeak:7.4,lowFreq:3,midFreq:0,hiFreq:2}},
+ {name:'Hot Female Vox',settings:{source:0,hpf:0,input:7.4,gain:60,threshold:6.7,attack:0,release:0,meter:2,deess:1,deFreq:4,deThreshold:2.6,output:-26.7,eq:1,xfmr:1,lowPeak:5,midDip:0,hiPeak:7,lowFreq:5,midFreq:1,hiFreq:0}},
+ {name:'Hypster Female Vox',settings:{source:0,hpf:0,input:9.4,gain:60,threshold:8.3,attack:0,release:0,meter:2,deess:1,deFreq:4,deThreshold:1.5,output:-36,eq:1,xfmr:1,lowPeak:5,midDip:0,hiPeak:7,lowFreq:5,midFreq:1,hiFreq:0}},
+ {name:'Medium Comp & De-ess Female',settings:{source:0,hpf:0,input:5,gain:40,threshold:3.7,attack:4,release:0,meter:2,deess:1,deFreq:2,deThreshold:0.9,output:-16,eq:1,xfmr:1,lowPeak:4.6,midDip:0,hiPeak:8.3,lowFreq:5,midFreq:5,hiFreq:10}},
+ {name:'Gentle Comp Female Voice',settings:{source:0,hpf:0,input:5.4,gain:40,threshold:5,attack:4,release:1,meter:0,deess:0,deFreq:2,deThreshold:10,output:-17.3,eq:1,lowPeak:3,midDip:1,hiPeak:8.7,lowFreq:6,midFreq:5,hiFreq:10}},
+ {name:'Heavy Comp & De-ess Male',settings:{source:0,hpf:0,input:6.7,gain:40,threshold:6.7,attack:1,release:0,meter:2,deess:1,deFreq:2,deThreshold:1.7,output:-18.7,eq:1,xfmr:1,lowPeak:4.3,midDip:0,hiPeak:8.3,lowFreq:4,midFreq:0,hiFreq:2}},
+ {name:'Heavy Comp Rock Vocal',settings:{source:0,hpf:0,input:6.7,gain:40,threshold:5,attack:0,release:3,meter:2,deess:1,deFreq:2,deThreshold:0.2,output:-24,eq:1,xfmr:1,lowPeak:5,midDip:0,hiPeak:8,lowFreq:4,midFreq:5,hiFreq:0}},
+ {name:'Hi-Fi BGVs',settings:{source:0,hpf:0,input:10,gain:40,threshold:10,attack:0,release:0,meter:2,deess:1,deFreq:4,deThreshold:3.7,output:0,eq:1,xfmr:1,lowPeak:7.4,midDip:1.9,hiPeak:5.6,lowFreq:5,midFreq:1,hiFreq:2}},
+ {name:'Basic Female Vocal',settings:{source:1,hpf:2,input:4.3,gain:45,threshold:3.3,attack:4,release:0,meter:0,deess:0,deFreq:2,deThreshold:4.8,output:-17,eq:1,lowPeak:2,midDip:0.7,hiPeak:7.4,lowFreq:7,midFreq:5,hiFreq:10}},
+ {name:'Basic Male Vocal',settings:{source:1,hpf:2,input:4.3,gain:45,threshold:3.3,attack:4,release:1,meter:0,deess:0,deFreq:2,deThreshold:4.8,output:-24,eq:1,lowPeak:3.3,midDip:0.7,hiPeak:7.4,lowFreq:4,midFreq:4,hiFreq:7}},
+ {name:'De-ess Female Vocal',settings:{source:0,hpf:0,input:4.3,gain:40,compress:0,threshold:0,attack:1,release:0,meter:2,deess:1,deFreq:3,deThreshold:2.8,output:0,eq:0,lowPeak:4,midDip:0,hiPeak:8,lowFreq:4,midFreq:4,hiFreq:10}},
+ {name:'De-ess Male Vocal',settings:{source:0,hpf:0,input:4.3,gain:40,compress:0,threshold:0,attack:1,release:0,meter:2,deess:1,deFreq:2,deThreshold:3.3,output:0,eq:0,lowPeak:4.6,midDip:0,hiPeak:8.3,lowFreq:4,midFreq:0,hiFreq:2}}
+];
+for(const [index,p]of vocalBank.entries()){
+ const old=library.findIndex(item=>item.name===p.name);
+ const mapped={id:old>=0?library[old].id:'vocal-'+index,name:p.name,tags:['Dark','Vocal'],factory:true,mapping:'visual-estimate',
+ settings:{...defaults,power:1,phase:0,link:1,compress:1,xfmr:0,bypass:0,...p.settings}};
+ if(old>=0)library[old]=mapped;else library.push(mapped);
+}
+// Guitar bank: continuous settings visually estimated from the supplied references.
+const guitarBank=[
+ {name:'Acoustic Gtr Heavy Comp',settings:{hpf:2,input:5.2,gain:40,threshold:7.4,attack:2,release:1,meter:0,deess:0,deFreq:2,deThreshold:0,output:0,lowPeak:7.4,midDip:0.7,hiPeak:8,lowFreq:4,midFreq:1,hiFreq:2}},
+ {name:'Acoustic Gtr Tuff Comp',settings:{hpf:2,input:8.7,gain:40,threshold:7.4,attack:0,release:0,meter:2,deess:1,deFreq:4,deThreshold:0,output:-18.7,lowPeak:0.7,midDip:0.7,hiPeak:8,lowFreq:4,midFreq:1,hiFreq:2}},
+ {name:'Acoustic Gtr',settings:{hpf:2,input:5.2,gain:40,threshold:5.4,attack:2,release:1,meter:2,deess:1,deFreq:4,deThreshold:0.7,output:0,lowPeak:1.7,midDip:0.7,hiPeak:5.6,lowFreq:4,midFreq:0,hiFreq:2}}
+];
+for(const [index,p]of guitarBank.entries()){
+ const old=library.findIndex(item=>item.name===p.name);
+ const mapped={id:old>=0?library[old].id:'guitar-'+index,name:p.name,tags:['Dark','Guitar'],factory:true,mapping:'visual-estimate',
+ settings:{...defaults,power:1,source:0,phase:0,link:1,compress:1,eq:1,xfmr:0,bypass:0,...p.settings}};
+ if(old>=0)library[old]=mapped;else library.push(mapped);
+}
+// Rock Guitar is shared with the Guitar category.
+{const p=library.find(item=>item.name==='Rock Guitar');
+ if(p&&!p.tags.includes('Guitar'))p.tags.push('Guitar');}
+// New references mapped to Dark; additional category awaits user identification.
+const pendingCategoryBank=[
+ {name:'Hi-Fi Snare',settings:{hpf:2,input:5,gain:40,threshold:3.7,attack:4,release:0,meter:2,deess:1,deFreq:4,deThreshold:1.9,output:-11,lowPeak:6.7,midDip:6,hiPeak:8,lowFreq:6,midFreq:2,hiFreq:7}},
+ {name:'Snare Drum Sweetener',settings:{hpf:0,input:4.3,gain:40,threshold:5,attack:3,release:0,meter:0,deess:0,deFreq:4,deThreshold:2.6,output:0,lowPeak:4.6,midDip:1.7,hiPeak:5.6,lowFreq:6,midFreq:3,hiFreq:0}}
+];
+for(const [index,p]of pendingCategoryBank.entries()){
+ const old=library.findIndex(item=>item.name===p.name);
+ const mapped={id:old>=0?library[old].id:'pending-category-'+index,name:p.name,tags:['Dark'],factory:true,mapping:'visual-estimate',
+ settings:{...defaults,power:1,source:0,phase:0,link:1,compress:1,eq:1,xfmr:1,bypass:0,...p.settings}};
+ if(old>=0)library[old]=mapped;else library.push(mapped);
+}
+// Confirmed vocal additions to Dark → De-Ess.
+for(const name of ['De-ess Female Vocal','De-ess Male Vocal','Heavy Comp & De-ess Male','Heavy Comp Rock Vocal']){
+ const p=library.find(item=>item.name===name);
+ if(p&&!p.tags.includes('De-Ess'))p.tags.push('De-Ess');
+}
+// Additional De-Ess references; continuous parameters are visual estimates.
+const deessBank=[
+ {name:'Hi-Fi Kick',settings:{hpf:0,input:5,gain:40,threshold:5.6,attack:4,release:2,meter:2,deFreq:0,deThreshold:7.4,output:0,lowPeak:2.8,midDip:0.7,hiPeak:5,lowFreq:2,midFreq:0,hiFreq:3}},
+ {name:'Hypster Drum Bus',settings:{hpf:1,input:5.6,gain:60,threshold:1.9,attack:2,release:0,meter:2,deFreq:1,deThreshold:0.7,output:-39,lowPeak:3.3,midDip:1.7,hiPeak:4,lowFreq:7,midFreq:5,hiFreq:5}}
+];
+for(const [index,p]of deessBank.entries()){
+ const old=library.findIndex(item=>item.name===p.name);
+ const mapped={id:old>=0?library[old].id:'deess-'+index,name:p.name,tags:['Dark','De-Ess'],factory:true,mapping:'visual-estimate',
+ settings:{...defaults,power:1,source:0,phase:0,link:1,compress:1,deess:1,eq:1,xfmr:1,bypass:0,...p.settings}};
+ if(old>=0)library[old]=mapped;else library.push(mapped);
+}
+{const p=library.find(item=>item.name==='Medium Comp & De-ess Female');
+ if(p&&!p.tags.includes('De-Ess'))p.tags.push('De-Ess');}
+// Further confirmed vocal membership in Dark → De-Ess.
+for(const name of ['Medium Comp Male Voice','Medium Comp Rock Vocal','Warm Male Vox']){
+ const p=library.find(item=>item.name===name);
+ if(p&&!p.tags.includes('De-Ess'))p.tags.push('De-Ess');
+}
+// Strong compression starting point, informed by the supplied compressor manual.
+// Ratio is program dependent, typically around 3:1, rather than a fixed ratio.
+// Clockwise threshold increases compression; FAST attack catches transients,
+// SLOW release holds reduction longer. No automatic makeup gain is applied.
+// This panel exposes settings only; no audio DSP is implemented.
+const strongCompression={id:'strong-compression',name:'Compressão Forte',tags:['Heavy'],factory:true,
+ settings:{...defaults,power:1,bypass:0,source:0,input:7.5,gain:45,compress:1,threshold:8,attack:0,release:4,meter:0,output:-6,deess:0}};
+library.push(strongCompression);
+// Additional photographed Light presets; values are visual estimates.
+const lightBank=[
+ {name:'Drum Tightener',settings:{hpf:1,input:5,gain:50,threshold:2.8,attack:1,release:0,meter:2,deess:1,deFreq:4,deThreshold:0.9,output:-25.3,lowPeak:7.4,midDip:2.8,hiPeak:2.6,lowFreq:2,midFreq:3,hiFreq:7}},
+ {name:'Gentle Compression',settings:{hpf:0,input:5.2,gain:40,threshold:5,attack:4,release:0,meter:0,deess:0,deFreq:2,deThreshold:10,output:0,lowPeak:0,midDip:0,hiPeak:0,lowFreq:5,midFreq:5,hiFreq:10}},
+ {name:'Grand Piano',settings:{hpf:1,input:5,gain:40,threshold:5,attack:0,release:4,meter:0,deess:0,deFreq:4,deThreshold:0,output:0,xfmr:0,lowPeak:8.3,midDip:6.7,hiPeak:2.8,lowFreq:0,midFreq:3,hiFreq:1}},
+ {name:'Hi-Fi Drum Bus',settings:{hpf:0,input:5,gain:40,threshold:5,attack:3,release:0,meter:2,deess:1,deFreq:4,deThreshold:2.8,output:0,lowPeak:3.7,midDip:1.7,hiPeak:4.3,lowFreq:0,midFreq:2,hiFreq:10}},
+ {name:'Kick Drum Gentle Comp',settings:{hpf:0,input:5,gain:40,threshold:3.7,attack:1,release:2,meter:0,deess:0,deFreq:2,deThreshold:0,output:-12,xfmr:0,lowPeak:4.3,midDip:0,hiPeak:7,lowFreq:1,midFreq:0,hiFreq:3}},
+ {name:'Kick Drum Tight Comp',settings:{hpf:0,input:5,gain:40,threshold:5,attack:0,release:3,meter:0,deess:0,deFreq:2,deThreshold:0,output:-4,lowPeak:4.6,midDip:0,hiPeak:7,lowFreq:2,midFreq:0,hiFreq:3}},
+ {name:'Rhodes Warmer',settings:{hpf:0,input:2.6,gain:55,threshold:2.8,attack:0,release:0,meter:2,deess:1,deFreq:4,deThreshold:0.9,output:-18.7,lowPeak:1.9,midDip:1.9,hiPeak:1.5,lowFreq:4,midFreq:5,hiFreq:2}},
+ {name:'Strings Sweetener',settings:{hpf:0,input:2.6,gain:40,threshold:7.4,attack:4,release:4,meter:0,deess:0,deFreq:4,deThreshold:0,output:8,lowPeak:2.8,midDip:0.7,hiPeak:2.8,lowFreq:5,midFreq:9,hiFreq:0}}
+];
+for(const [index,p]of lightBank.entries()){
+ const old=library.findIndex(item=>item.name===p.name);
+ const mapped={id:old>=0?library[old].id:'light-'+index,name:p.name,tags:['Dark','Light'],factory:true,mapping:'visual-estimate',
+ settings:{...defaults,power:1,source:0,phase:0,link:1,compress:1,eq:1,xfmr:1,bypass:0,...p.settings}};
+ if(p.name==='Gentle Compression')mapped.settings.xfmr=0;
+ if(old>=0)library[old]=mapped;else library.push(mapped);
+}
+// Update the named factory preset only; control reset values and startup stay unchanged.
+{const p=library.find(item=>item.id==='default');p.mapping='visual-estimate';
+ p.settings={...defaults,power:1,hpf:0,phase:0,source:0,input:2.6,gain:50,link:1,compress:1,threshold:5,attack:2,release:2,meter:0,deess:0,deFreq:4,deThreshold:3.9,output:0,eq:1,xfmr:1,lowPeak:0,midDip:0,hiPeak:0,lowFreq:3,midFreq:1,hiFreq:2,bypass:0};}
+// Apply Light membership after all factory banks exist, preserving other tags.
+for(const name of ['Bass Big Muff Dist','Kick Drum Sweetener','Synth Bass Sweetener','Acoustic Gtr','Basic Female Vocal','Basic Male Vocal','Bass Safe Comp','Default','Gentle Comp Female Voice','Drum Tightener','Gentle Compression','Grand Piano','Hi-Fi Drum Bus','Hi-Fi Kick','Hi-Fi Snare','Kick Drum Gentle Comp','Kick Drum Tight Comp','Medium Comp & De-ess Female','Medium Comp Male Voice','Rhodes Warmer','Snare Drum Sweetener','Strings Sweetener']){
+ const p=library.find(item=>item.name===name);
+ if(p){if(!p.tags.includes('Light'))p.tags.push('Light');if(!p.tags.includes('Dark'))p.tags.push('Dark');}
+}
+// Hot Drum Bus: photographed controls, with visually estimated continuous values.
+{const name='Hot Drum Bus',old=library.findIndex(p=>p.name===name);
+ const mapped={id:old>=0?library[old].id:'drums-hot-bus',name,tags:['Dark','Drums'],factory:true,mapping:'visual-estimate',
+ settings:{...defaults,power:1,source:0,hpf:1,phase:0,input:4.3,gain:60,link:1,compress:1,threshold:3.1,attack:4,release:0,meter:2,deess:1,deFreq:4,deThreshold:0.9,output:-33.3,eq:1,xfmr:1,lowPeak:7.4,midDip:1.9,hiPeak:2.8,lowFreq:0,midFreq:5,hiFreq:0,bypass:0}};
+ if(old>=0)library[old]=mapped;else library.push(mapped);
+}
+// Confirmed Dark → Drums membership from the supplied references.
+for(const name of ['Fat Snare','Hi-Fi Overheads','Hypster Kick','Hypster Overheads','Hypster Snare','Kick Drum Sweetener','Drum Tightener','Hi-Fi Drum Bus','Hi-Fi Kick','Hi-Fi Snare','Hot Drum Bus','Hypster Drum Bus','Kick Drum Gentle Comp','Kick Drum Tight Comp','Snare Drum Sweetener']){
+ const p=library.find(item=>item.name===name);
+ if(p&&!p.tags.includes('Drums'))p.tags.push('Drums');
+}
+// Tuff & Dirty Compression: continuous values estimated from the supplied photo.
+{const name='Tuff & Dirty Compression',old=library.findIndex(p=>p.name===name);
+ const mapped={id:old>=0?library[old].id:'saturated-tuff-dirty',name,tags:['Dark','Saturated'],factory:true,mapping:'visual-estimate',
+ settings:{...defaults,power:1,source:0,hpf:0,phase:0,input:7.4,gain:40,link:1,compress:1,threshold:5.6,attack:1,release:1,meter:2,deess:1,deFreq:4,deThreshold:4.8,output:-13.3,eq:1,xfmr:1,lowPeak:2.6,midDip:10,hiPeak:7.4,lowFreq:5,midFreq:5,hiFreq:5,bypass:0}};
+ if(old>=0)library[old]=mapped;else library.push(mapped);
+}
+// Confirmed Dark → Saturated membership from the supplied references.
+for(const name of ['Bass Big Muff Dist','Fat Snare','Hypster Bass','Hypster Kick','Hypster Overheads','Hypster Snare','Rock Guitar','Synth Bass Sweetener','Bass Fuzz & Comp','Hi-Fi Electric Bass','Hot Drum Bus','Hot Female Vox','Hypster Drum Bus','Hypster Female Vox','Telephone Vox','Tuff & Dirty Compression','Warm Male Vox']){
+ const p=library.find(item=>item.name===name);
+ if(p&&!p.tags.includes('Saturated'))p.tags.push('Saturated');
+}
+// Confirmed Present membership from the supplied references.
+for(const name of ['Basic Female Vocal','Basic Male Vocal','Bass Fuzz & Comp','Bass Safe Comp','Bass Tuff Comp','Drum Tightener','Grand Piano','Heavy Comp Rock Vocal','Hi-Fi Drum Bus','Hi-Fi Electric Bass','Hi-Fi Kick','Hot Drum Bus','Hot Female Vox','Hypster Female Vox','Kick Drum Gentle Comp','Kick Drum Tight Comp','Medium Comp Male Voice','Medium Comp Rock Vocal','Rhodes Warmer','Snare Drum Sweetener','Strings Sweetener','Tuff & Dirty Compression']){
+ const p=library.find(item=>item.name===name);
+ if(p&&!p.tags.includes('Present'))p.tags.push('Present');
+}
+// Confirmed Dark → Limiter membership from the supplied references.
+for(const name of ['Bass Big Muff Dist','Hi-Fi Overheads','Acoustic Gtr Tuff Comp','Acoustic Gtr','Bass Tuff Comp','Drum Tightener','Hi-Fi BGVs','Hi-Fi Drum Bus','Hi-Fi Electric Bass','Hi-Fi Snare','Hot Drum Bus']){
+ const p=library.find(item=>item.name===name);
+ if(p&&!p.tags.includes('Limiter'))p.tags.push('Limiter');
+}
+// Medium Compression: continuous values estimated from the supplied photo.
+{const name='Medium Compression',old=library.findIndex(p=>p.name===name);
+ const mapped={id:old>=0?library[old].id:'heavy-medium-compression',name,tags:['Dark','Heavy'],factory:true,mapping:'visual-estimate',
+ settings:{...defaults,power:1,source:0,hpf:0,phase:0,input:5,gain:40,link:1,compress:1,threshold:6.7,attack:1,release:2,meter:0,deess:0,deFreq:2,deThreshold:10,output:0,eq:1,xfmr:0,lowPeak:0,midDip:0,hiPeak:0,lowFreq:5,midFreq:5,hiFreq:5,bypass:0}};
+ if(old>=0)library[old]=mapped;else library.push(mapped);
+}
+// Tuff Compression: continuous values estimated from the supplied photo.
+{const name='Tuff Compression',old=library.findIndex(p=>p.name===name);
+ const mapped={id:old>=0?library[old].id:'heavy-tuff-compression',name,tags:['Dark','Heavy'],factory:true,mapping:'visual-estimate',
+ settings:{...defaults,power:1,source:0,hpf:0,phase:0,input:6.7,gain:40,link:1,compress:1,threshold:6.7,attack:0,release:2,meter:0,deess:0,deFreq:2,deThreshold:10,output:-12,eq:0,xfmr:0,lowPeak:0,midDip:0,hiPeak:0,lowFreq:5,midFreq:5,hiFreq:5,bypass:0}};
+ if(old>=0)library[old]=mapped;else library.push(mapped);
+}
+// Confirmed Dark → Heavy membership from the supplied preset list.
+for(const name of ['Fat Snare','Hypster Overheads','Hypster Snare','Acoustic Gtr Heavy Comp','Acoustic Gtr Tuff Comp','Bass Fuzz & Comp','Bass Tuff Comp','Heavy Comp & De-ess Male','Heavy Comp Rock Vocal','Hi-Fi BGVs','Hi-Fi Electric Bass','Hi-Fi Kick','Hot Drum Bus','Hot Female Vox','Hypster Female Vox','Medium Comp Rock Vocal','Medium Compression','Telephone Vox','Tuff & Dirty Compression','Tuff Compression','Warm Male Vox']){
+ const p=library.find(item=>item.name===name);
+ if(p&&!p.tags.includes('Heavy'))p.tags.push('Heavy');
+}
+// Confirmed Dark → Line membership from the supplied references.
+for(const name of ['Fat Snare','Hi-Fi Overheads','Hypster Kick','Hypster Overheads','Hypster Snare','Kick Drum Sweetener','Rock Guitar','Synth Bass Sweetener','Acoustic Gtr Heavy Comp','Acoustic Gtr Tuff Comp','Acoustic Gtr','Bass Safe Comp','Bass Tuff Comp','De-ess Female Vocal','De-ess Male Vocal','Default','Drum Tightener','Gentle Comp Female Voice','Gentle Compression','Grand Piano','Heavy Comp & De-ess Male','Heavy Comp Rock Vocal','Hi-Fi BGVs','Hi-Fi Drum Bus']){
+ const p=library.find(item=>item.name===name);
+ if(p&&!p.tags.includes('Line'))p.tags.push('Line');
+}
+for(const nome of ['Hi-Fi Electric Bass','Hi-Fi Kick','Hi-Fi Snare','Hot Drum Bus']){const p=library.find(p=>p.name===nome);if(p&&!p.tags.includes('Line'))p.tags.push('Line')}
+// Migração e biblioteca: os controles mantêm os mesmos IDs e valores de áudio.
+const ordemTipos=['Present','Light','Heavy','Saturated','Best Of','Vocal','Drums','Bright','Limiter','De-Ess','Dark','Bass','Line','Mic','Kick','Snare','Guitar','Compressor'];
+const normalizar=texto=>String(texto||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const unicas=valores=>[...new Set(valores.filter(v=>typeof v==='string'&&v.trim()).map(v=>v.trim()))];
+let relatorioImportacao=null;
+function migrarPresets(entradas,{grupoPadrao='',usuario=false}={}){
+ const relatorio={lidos:entradas.length,grupos:[],semPrefixo:[],ambiguos:[]};
+ const migrados=entradas.map((entrada,indice)=>{
+  const original=String(entrada.name||entrada.nome||'').trim();let nome=original,grupo=String(entrada.group||grupoPadrao),artista=String(entrada.artist||entrada.author||entrada.metadata?.artist||'');
+  const colchetes=nome.match(/^\[([^\]]+)\]\s*(.*)$/),separador=nome.match(/^(.+?)(?:\s+-\s+|_)(.+)$/);
+  const prefixo=colchetes||separador;
+  if(prefixo){if(entrada.group&&entrada.group!==prefixo[1].trim())relatorio.ambiguos.push(original);grupo=prefixo[1].trim();nome=prefixo[2].trim();if(/^\[/.test(nome))relatorio.ambiguos.push(original)}else relatorio.semPrefixo.push(original);
+  if(!nome){nome=original||'Sem nome';relatorio.ambiguos.push(original)}
+  const autor=nome.match(/\s+(?:by|@)\s+(.+)$/i);if(!artista&&autor)artista=autor[1].trim();
+  const tags=Array.isArray(entrada.tags)?[...entrada.tags]:[];
+  const regras=[[/\b(drum|drums|kick|snare|overheads?)\b/i,'Drums'],[/\b(vocal|vocals|vox|voice|bgvs?)\b/i,'Vocal'],[/\bbass\b/i,'Bass'],[/\bdark\b/i,'Dark'],[/\bbright\b/i,'Bright'],[/\bheavy\b/i,'Heavy'],[/\blight\b/i,'Light'],[/\b(comp|compression|compressor)\b/i,'Compressor'],[/de[-\s]?ess/i,'De-Ess'],[/\b(lim|limiter|limiting)\b/i,'Limiter'],[/\b(sat|saturated|saturation)\b/i,'Saturated']];
+  for(const [regra,tag]of regras)if(regra.test(nome))tags.push(tag);
+  const parametros=entrada.params||entrada.settings||null;
+  return {id:String(entrada.id||('import-'+Date.now()+'-'+indice+'-'+Math.random().toString(36).slice(2,7))),name:nome,group:grupo,tags:unicas([...tags,grupo]),artist:artista,favorite:!!entrada.favorite,isUser:entrada.isUser??(entrada.factory===undefined?usuario:!entrada.factory),settings:parametros?{...parametros}:null};
+ });
+ relatorio.grupos=unicas(migrados.map(p=>p.group));relatorio.ambiguos=unicas(relatorio.ambiguos);relatorioImportacao=relatorio;
+ console.info('Migração de presets:',JSON.stringify(relatorio));return {presets:migrados,relatorio};
+}
+library=migrarPresets(library,{grupoPadrao:'VOXBOX'}).presets;
+let selectedId='default',loadedId='default',abaTags='TYPE',favoritosSomente=false;
+const tagsSelecionadas=new Set(['Line']);
+const navegador=document.querySelector('#presetBrowser'),lista=document.querySelector('#presetList'),campoNome=document.querySelector('#presetName'),aviso=document.querySelector('#browserNote');
+const chaveBiblioteca='vocabox-biblioteca-v2';
+try{
+ const salvo=JSON.parse(localStorage.getItem(chaveBiblioteca)||'null');
+ if(salvo){const favoritos=new Set(salvo.favorites||[]);library.forEach(p=>p.favorite=favoritos.has(p.id));if(Array.isArray(salvo.userPresets))for(const p of migrarPresets(salvo.userPresets,{grupoPadrao:'VOXBOX',usuario:true}).presets)if(!library.some(item=>item.id===p.id))library.push(p)}
+ else {const antigo=JSON.parse(localStorage.getItem('voxbox-presets-v1')||'null');if(antigo){library.forEach(p=>p.favorite=(antigo.favorites||[]).includes(p.id));for(const p of migrarPresets(antigo.userPresets||[],{grupoPadrao:'VOXBOX',usuario:true}).presets){const indice=library.findIndex(item=>item.id===p.id);if(indice<0)library.push(p);else{p.tags=unicas([...library[indice].tags,...p.tags]);library[indice]=p}}}}
+}catch{console.info('Biblioteca local indisponível; usando presets incorporados.')}
+function persistirBiblioteca(){try{localStorage.setItem(chaveBiblioteca,JSON.stringify({version:2,favorites:library.filter(p=>p.favorite).map(p=>p.id),userPresets:library.filter(p=>p.isUser)}));return true}catch{aviso.textContent='Armazenamento indisponível; alterações válidas nesta sessão.';return false}}
+function presetSelecionado(){return library.find(p=>p.id===selectedId)||library[0]}
+function possuiTag(p,tag){if(tag.startsWith('artist:'))return p.artist===tag.slice(7);if(tag.startsWith('group:'))return p.group===tag.slice(6);return p.tags.includes(tag)}
+function nomeTag(tag){return tag.replace(/^(artist|group):/,'')}
+function filtrarBiblioteca(){const busca=normalizar(document.querySelector('#presetSearch').value);return library.filter(p=>(!favoritosSomente||p.favorite)&&[...tagsSelecionadas].every(tag=>possuiTag(p,tag))&&normalizar([p.name,p.group,p.artist,...p.tags].join(' ')).includes(busca))}
+function desenharTags(){
+ const grade=document.querySelector('#tagGrid'),chips=document.querySelector('#chosenTag');grade.replaceChildren();chips.replaceChildren();
+ const tipos=unicas([...ordemTipos,...library.flatMap(p=>p.tags.filter(t=>t!==p.group))]);
+ let tags=abaTags==='ARTIST'?unicas(library.map(p=>p.artist)).sort((a,b)=>a.localeCompare(b)).map(a=>'artist:'+a):tipos;
+ if(abaTags==='ALL')tags=unicas([...tipos,...library.map(p=>'group:'+p.group).filter(t=>t!=='group:'),...library.filter(p=>p.artist).map(p=>'artist:'+p.artist)]).sort((a,b)=>nomeTag(a).localeCompare(nomeTag(b)));
+ for(const tag of tagsSelecionadas){const botao=document.createElement('button');botao.textContent=nomeTag(tag);botao.className='active';botao.setAttribute('aria-label','Remover filtro '+nomeTag(tag));botao.onclick=()=>{tagsSelecionadas.delete(tag);drawLibrary()};chips.append(botao)}
+ for(const tag of tags)if(!tagsSelecionadas.has(tag)){const botao=document.createElement('button');botao.textContent=nomeTag(tag);botao.setAttribute('aria-pressed','false');botao.onclick=()=>{tagsSelecionadas.add(tag);drawLibrary()};grade.append(botao)}
+ if(!grade.children.length){const vazio=document.createElement('div');vazio.className='sem-tags';vazio.textContent=abaTags==='ARTIST'?'Nenhum artista informado.':'Todas as tags estão selecionadas.';grade.append(vazio)}
+ document.querySelector('#clearTags').hidden=tagsSelecionadas.size===0;
+ document.querySelectorAll('[data-aba]').forEach(b=>{const ativa=b.dataset.aba===abaTags;b.classList.toggle('active',ativa);b.setAttribute('aria-selected',String(ativa))});
+ document.querySelector('#favoritesTab').classList.toggle('active',favoritosSomente);document.querySelector('#favoritesTab').setAttribute('aria-pressed',String(favoritosSomente));
+ document.querySelector('#favoritesTab .star-icon').textContent=favoritosSomente?'★':'☆';
+}
+function alternarFavorito(id){const p=library.find(item=>item.id===id);if(!p)return;p.favorite=!p.favorite;persistirBiblioteca();drawLibrary()}
+function carregarPreset(p){selectedId=p.id;if(p.settings){window.voxbox.setState({...defaults,...p.settings});loadedId=p.id;preset.textContent=p.name+' ▾';aviso.textContent='Preset carregado.'}else aviso.textContent='Preset sem parâmetros: aguardando mapeamento.';drawLibrary()}
+function drawLibrary(){
+ desenharTags();const atual=presetSelecionado();campoNome.value=atual.name;
+ const estrela=document.querySelector('#favoritePreset');estrela.textContent=atual.favorite?'★':'☆';estrela.setAttribute('aria-pressed',String(atual.favorite));
+ document.querySelector('#deletePreset').disabled=!atual.isUser;document.querySelector('#renamePreset').disabled=!atual.isUser;
+ lista.replaceChildren();for(const p of filtrarBiblioteca()){
+  const linha=document.createElement('div');linha.className='linha-preset'+(p.id===selectedId?' selected':'');
+  const botao=document.createElement('button');botao.className='preset-row';botao.textContent=p.name;botao.setAttribute('aria-pressed',String(p.id===selectedId));botao.onclick=()=>carregarPreset(p);linha.append(botao);
+  const favorito=document.createElement('button');favorito.className='favorito-linha';favorito.textContent=p.favorite?'★':'☆';favorito.setAttribute('aria-label','Favoritar '+p.name);favorito.setAttribute('aria-pressed',String(p.favorite));favorito.onclick=()=>alternarFavorito(p.id);linha.append(favorito);lista.append(linha);
+ }
+ if(!lista.children.length){const vazio=document.createElement('div');vazio.className='empty-presets';vazio.textContent='Nenhum preset encontrado.';lista.append(vazio)}
+}
+preset.onclick=()=>{drawLibrary();navegador.showModal()};document.querySelector('.browser-close').onclick=()=>navegador.close();document.querySelector('#presetSearch').oninput=drawLibrary;
+document.querySelector('#clearTags').onclick=()=>{tagsSelecionadas.clear();drawLibrary()};document.querySelector('#tagsTab').onclick=()=>{const oculto=!document.querySelector('#tagFilters').hidden;document.querySelector('#tagFilters').hidden=oculto;document.querySelector('#tagsTab').setAttribute('aria-expanded',String(!oculto))};
+document.querySelector('#favoritesTab').onclick=()=>{favoritosSomente=!favoritosSomente;drawLibrary()};
+document.querySelectorAll('[data-aba]').forEach(b=>b.onclick=()=>{abaTags=b.dataset.aba;drawLibrary()});
+document.querySelector('#favoritePreset').onclick=()=>alternarFavorito(presetSelecionado().id);
+document.querySelector('#savePreset').onclick=()=>{
+ let nome=campoNome.value.trim();if(!nome){aviso.textContent='Digite um nome para salvar.';return}
+ const atual=presetSelecionado();if(!atual.isUser&&nome===atual.name)nome+=' (User)';
+ if(library.some(p=>normalizar(p.name)===normalizar(nome))){aviso.textContent='Já existe um preset com esse nome.';return}
+ const novo=migrarPresets([{name:nome,group:atual.group,tags:unicas([...atual.tags,...[...tagsSelecionadas].filter(t=>!t.includes(':'))]),artist:atual.artist,isUser:true,settings:window.voxbox.getState()}],{grupoPadrao:'VOXBOX',usuario:true}).presets[0];
+ library.push(novo);selectedId=loadedId=novo.id;preset.textContent=novo.name+' ▾';document.querySelector('#presetSearch').value='';favoritosSomente=false;
+ const salvo=persistirBiblioteca();drawLibrary();if(salvo)aviso.textContent='Preset de usuário salvo.';
+};
+document.querySelector('#renamePreset').onclick=()=>{
+ const atual=presetSelecionado(),nome=campoNome.value.trim();if(!atual.isUser||!nome)return;
+ if(library.some(p=>p.id!==atual.id&&normalizar(p.name)===normalizar(nome))){aviso.textContent='Já existe um preset com esse nome.';return}
+ atual.name=nome;if(loadedId===atual.id)preset.textContent=nome+' ▾';persistirBiblioteca();drawLibrary();
+};
+document.querySelector('#deletePreset').onclick=()=>{
+ const atual=presetSelecionado();if(!atual.isUser)return;const confirmacao=document.querySelector('#confirmDelete');document.querySelector('#deleteName').textContent=atual.name;confirmacao.dataset.id=atual.id;confirmacao.showModal();
+};
+document.querySelector('#cancelDelete').onclick=()=>document.querySelector('#confirmDelete').close();
+document.querySelector('#confirmDeleteButton').onclick=()=>{
+ const confirmacao=document.querySelector('#confirmDelete'),id=confirmacao.dataset.id,p=library.find(p=>p.id===id);if(!p?.isUser)return;
+ library=library.filter(p=>p.id!==id);selectedId='default';if(loadedId===id)carregarPreset(library[0]);persistirBiblioteca();confirmacao.close();drawLibrary();aviso.textContent='Preset de usuário excluído.';
+};
+// API de migração: aceita JSON, array ou {presets:[...]}; não inventa parâmetros ausentes.
+window.voxbox.importPresets=function(dados,opcoes={}){
+ if(typeof dados==='string')dados=JSON.parse(dados);const entradas=Array.isArray(dados)?dados:dados?.presets;
+ if(!Array.isArray(entradas))throw new TypeError('Informe um array ou {presets:[...]}');
+ for(const p of entradas){if(!p||typeof(p.name||p.nome)!=='string')throw new TypeError('Cada preset precisa de nome');const parametros=p.params||p.settings;if(parametros)for(const [id,v]of Object.entries(parametros))if(!Object.hasOwn(defaults,id)||!Number.isFinite(v))throw new TypeError('Parâmetro inválido: '+id)}
+ const resultado=migrarPresets(entradas,{grupoPadrao:opcoes.group||'VOXBOX',usuario:true});
+ for(const p of resultado.presets){if(p.settings)for(const [id,valor]of Object.entries(p.settings)){const c=controls.get(id);if(c){const v=Math.max(c.min,Math.min(c.max,valor));p.settings[id]=c.steps?c.min+Math.round((v-c.min)/c.steps)*c.steps:v}else p.settings[id]=valor?1:0}const indice=library.findIndex(item=>item.id===p.id||(item.name===p.name&&item.group===p.group));if(indice>=0){p.id=library[indice].id;p.tags=unicas([...library[indice].tags,...p.tags]);p.favorite=library[indice].favorite;if(!p.settings)p.settings=library[indice].settings;if(!library[indice].isUser){library[indice].tags=p.tags;if(p.artist)library[indice].artist=p.artist}else library[indice]=p}else library.push(p)}
+ persistirBiblioteca();drawLibrary();return structuredClone(resultado.relatorio);
+};
+window.voxbox.setPresets=entradas=>window.voxbox.importPresets(entradas);
+window.voxbox.getPresets=()=>library.map(p=>({...p,tags:[...p.tags],factory:!p.isUser,params:p.settings?{...p.settings}:null,settings:p.settings?{...p.settings}:null}));
+window.voxbox.getImportReport=()=>structuredClone(relatorioImportacao);
+window.voxbox.exportPresets=()=>JSON.stringify(window.voxbox.getPresets(),null,2);
+let comparacao={...defaults};document.querySelector('#compare').onclick=()=>{const anterior=window.voxbox.getState();window.voxbox.setState(comparacao);comparacao=anterior};
+for(const [id,direcao]of [['prev',-1],['next',1]])document.querySelector('#'+id).onclick=()=>{const mapeados=library.filter(p=>p.settings),indice=mapeados.findIndex(p=>p.id===loadedId);carregarPreset(mapeados[(Math.max(0,indice)+direcao+mapeados.length)%mapeados.length])};
+drawLibrary();
+
+// Knob compartilhado: luz fixa; estrias e inserto acompanham o ângulo.
+function pintarKnob(contexto,tamanho,angulo){
+ const fator=tamanho/64,centro=44*fator,raio=31*fator;
+ contexto.save();contexto.clearRect(0,0,88*fator,88*fator);
+ contexto.shadowColor='rgba(0,0,0,.62)';contexto.shadowBlur=9*fator;contexto.shadowOffsetX=3*fator;contexto.shadowOffsetY=5*fator;
+ contexto.fillStyle='#09090b';contexto.beginPath();contexto.ellipse(centro,centro+3*fator,raio,raio,0,0,Math.PI*2);contexto.fill();
+ contexto.shadowBlur=2*fator;contexto.shadowOffsetX=fator;contexto.shadowOffsetY=2*fator;contexto.shadowColor='rgba(0,0,0,.85)';
+ let gradiente=contexto.createLinearGradient(centro-raio,centro-raio,centro+raio,centro+raio);gradiente.addColorStop(0,'#515156');gradiente.addColorStop(.25,'#202023');gradiente.addColorStop(.7,'#08080a');gradiente.addColorStop(1,'#151517');contexto.fillStyle=gradiente;contexto.beginPath();contexto.arc(centro,centro+2*fator,raio,0,Math.PI*2);contexto.fill();contexto.shadowColor='transparent';
+ for(let i=0;i<100;i++){
+  const a=i*Math.PI*2/100+angulo,luz=(Math.cos(a+Math.PI/4)+1)/2;
+  const externo=raio*.98,interno=raio*.85;
+  contexto.strokeStyle=`rgba(${Math.round(35+luz*65)},${Math.round(35+luz*65)},${Math.round(39+luz*65)},${.25+luz*.45})`;contexto.lineWidth=.65*fator;
+  contexto.beginPath();contexto.moveTo(centro+Math.sin(a)*interno,centro-Math.cos(a)*interno-2*fator);contexto.lineTo(centro+Math.sin(a)*externo,centro-Math.cos(a)*externo+2*fator);contexto.stroke();
+ }
+ gradiente=contexto.createRadialGradient(centro-8*fator,centro-13*fator,2*fator,centro,centro,raio*.9);gradiente.addColorStop(0,'#303034');gradiente.addColorStop(.35,'#1a1a1d');gradiente.addColorStop(.8,'#131315');gradiente.addColorStop(1,'#08080b');contexto.fillStyle=gradiente;contexto.beginPath();contexto.arc(centro,centro-2*fator,raio*.86,0,Math.PI*2);contexto.fill();
+ contexto.save();contexto.beginPath();contexto.arc(centro,centro-2*fator,raio*.855,0,Math.PI*2);contexto.clip();
+ for(let i=0;i<800;i++){const x=((i*193+37)%997)/997*raio*2+centro-raio,y=((i*397+71)%991)/991*raio*2+centro-raio;contexto.fillStyle=i%2?'rgba(255,255,255,.026)':'rgba(0,0,0,.035)';contexto.fillRect(x,y,.55*fator,.55*fator)}
+ contexto.restore();contexto.strokeStyle='rgba(150,150,157,.23)';contexto.lineWidth=1.1*fator;contexto.beginPath();contexto.arc(centro,centro-2*fator,raio*.84,Math.PI*1.05,Math.PI*1.64);contexto.stroke();
+ const dx=Math.sin(angulo),dy=-Math.cos(angulo);contexto.lineCap='round';contexto.shadowColor='rgba(0,0,0,.9)';contexto.shadowBlur=1.2*fator;contexto.shadowOffsetX=.8*fator;contexto.shadowOffsetY=.8*fator;contexto.strokeStyle='#f2efe6';contexto.lineWidth=2*fator;contexto.beginPath();contexto.moveTo(centro+dx*3*fator,centro-2*fator+dy*3*fator);contexto.lineTo(centro+dx*25*fator,centro-2*fator+dy*25*fator);contexto.stroke();contexto.restore();
+}
+window.voxbox.pintarKnob=pintarKnob;
+function prepararPele(c){const tela=document.createElement('canvas');const extensao=c.size*88/64;tela.width=tela.height=264;tela.style.cssText=`position:absolute;width:${extensao}px;height:${extensao}px;left:${(c.size-extensao)/2}px;top:${(c.size-extensao)/2}px;pointer-events:none`;c.el.replaceChildren(tela);c.tela=tela;c.anguloVisual=c.start+(c.end-c.start)*(state[c.id]-c.min)/(c.max-c.min);c.el.addEventListener('contextmenu',ev=>{ev.preventDefault();abrirValorKnob(c)});c.el.addEventListener('pointerdown',ev=>{if(ev.ctrlKey){ev.stopImmediatePropagation();ev.preventDefault();abrirValorKnob(c)}},true)}
+function abrirValorKnob(c){const janela=document.querySelector('#knobValueDialog'),campo=document.querySelector('#knobValue');janela.dataset.id=c.id;document.querySelector('#knobValueTitle').textContent=c.name;campo.min=c.min;campo.max=c.max;campo.step=c.steps||.01;campo.value=state[c.id];janela.showModal();campo.focus();campo.select()}
+for(const c of controls.values())if(!c.toggle)prepararPele(c);
+document.querySelector('#cancelKnobValue').onclick=()=>document.querySelector('#knobValueDialog').close();
+document.querySelector('#knobValueForm').onsubmit=ev=>{ev.preventDefault();const janela=document.querySelector('#knobValueDialog'),campo=document.querySelector('#knobValue'),c=controls.get(janela.dataset.id);if(c&&campo.reportValidity()){commit(c,Number(campo.value));janela.close()}};
+let instanteKnobs=0;function animarKnobs(agora){const dt=Math.min(.05,(agora-instanteKnobs)/1000||.016);instanteKnobs=agora;for(const c of controls.values())if(c.tela){const alvo=c.start+(c.end-c.start)*(state[c.id]-c.min)/(c.max-c.min);c.anguloVisual+=(alvo-c.anguloVisual)*(1-Math.exp(-dt*24));if(c.ultimoAngulo===undefined||Math.abs(c.anguloVisual-c.ultimoAngulo)>.005){const ctx=c.tela.getContext('2d');ctx.setTransform(3,0,0,3,0,0);pintarKnob(ctx,64,c.anguloVisual*Math.PI/180);c.ultimoAngulo=c.anguloVisual}}requestAnimationFrame(animarKnobs)}requestAnimationFrame(animarKnobs);
+
+for(const [id,message]of [['learn','Drag knobs vertically · Shift: fine · Wheel: adjust · Double-click: reset'],['info','VOXBOX interactive panel · Visual simulation · No audio processing'],['buy','Manley VOXBOX · Front-panel recreation']])document.querySelector('#'+id).onclick=()=>{document.querySelector('#status').textContent=message};
+let scaleFactor=1;function resize(){scaleFactor=Math.min(1,(innerWidth-16)/1192);document.querySelector('#plugin').style.transform=`scale(${scaleFactor})`;document.querySelector('#viewport').style.width=1192*scaleFactor+'px';document.querySelector('#viewport').style.height=420*scaleFactor+'px'}addEventListener('resize',resize);resize();render();
+// Open with the requested strong compression preset selected.
+window.voxbox.setState(strongCompression.settings);
+selectedId=loadedId=strongCompression.id;
+preset.textContent=strongCompression.name+' ▾';
+drawLibrary();
+// A spring-damped movement models ballistic VU response without an audio dependency.
+let angle=-48,velocity=0,previous=0;function animate(ms){const dt=Math.min(.04,(ms-previous)/1000||.016);previous=ms;const t=ms/1000;let target=-49;if(state.power&&!state.bypass){const signal=.52+.18*Math.sin(t*2.8)+.12*Math.sin(t*7.3)+.06*Math.sin(t*19);target=[-40+signal*75+(state.input-5)*2,-45+signal*state.threshold*9,-35+signal*65+state.hiPeak,-45+signal*state.deThreshold*8][state.meter]}velocity+=(target-angle)*90*dt;velocity*=Math.exp(-12*dt);angle+=velocity*dt;document.querySelector('#needle').style.transform=`rotate(${angle}deg)`;requestAnimationFrame(animate)}requestAnimationFrame(animate);
+</script></body></html>

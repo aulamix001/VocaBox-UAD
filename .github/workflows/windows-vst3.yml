@@ -1,0 +1,31 @@
+name: Windows x64 VST3 (MSVC)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build and test with Visual Studio 2022
+        shell: pwsh
+        run: ./scripts/build-windows.ps1
+      - name: Package Windows VST3 and sources
+        shell: pwsh
+        run: |
+          python scripts/package.py --bundle build-msvc/VocaBox_artefacts/Release/VST3/VocaBox.vst3
+          if ($LASTEXITCODE -ne 0) { throw 'Packaging failed' }
+          @('Compiler: MSVC / Visual Studio 2022', 'Runner: windows-2022', "Commit: $env:GITHUB_SHA", "Run: $env:GITHUB_RUN_ID", 'Tests: DSP, Processor, VST3Host completed successfully') | Set-Content dist/Windows-MSVC-build.txt
+      - name: Upload VST3, source and test reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: VocaBox-Windows-x64-MSVC
+          if-no-files-found: error
+          path: |
+            dist/*.zip
+            dist/SHA256SUMS.txt
+            dist/Windows-MSVC-build.txt
+            build-msvc/Testing/Temporary/LastTest.log

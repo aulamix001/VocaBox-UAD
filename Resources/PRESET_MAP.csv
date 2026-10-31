@@ -1,0 +1,51 @@
+﻿Preset,Tags,power,hpf,phase,source,input,gain,link,compress,threshold,attack,release,meter,deess,deFreq,deThreshold,output,eq,xfmr,lowPeak,midDip,hiPeak,lowFreq,midFreq,hiFreq,bypass
+Default,Light | Dark | Line | VOXBOX,1,0,0,0,2.6,50,1,1,5,2,2,0,0,4,3.9,0,1,1,0,0,0,3,1,2,0
+Acoustic Gtr Heavy Comp,Dark | Guitar | Heavy | Line | Compressor | VOXBOX,1,2,0,0,5.2,40,1,1,7.4,2,1,0,0,2,0,0,1,0,7.4,0.7,8,4,1,2,0
+Acoustic Gtr Tuff Comp,Dark | Guitar | Limiter | Heavy | Line | Compressor | VOXBOX,1,2,0,0,8.7,40,1,1,7.4,0,0,2,1,4,0,-18.7,1,0,0.7,0.7,8,4,1,2,0
+Acoustic Gtr,Dark | Guitar | Light | Limiter | Line | VOXBOX,1,2,0,0,5.2,40,1,1,5.4,2,1,2,1,4,0.7,0,1,0,1.7,0.7,5.6,4,0,2,0
+Basic Female Vocal,Dark | Vocal | Light | Present | VOXBOX,1,2,0,1,4.3,45,1,1,3.3,4,0,0,0,2,4.8,-17,1,0,2,0.7,7.4,7,5,10,0
+Basic Male Vocal,Dark | Vocal | Light | Present | VOXBOX,1,2,0,1,4.3,45,1,1,3.3,4,1,0,0,2,4.8,-24,1,0,3.3,0.7,7.4,4,4,7,0
+Bass Big Muff Dist,Dark | Bass | Mic | Light | Saturated | Limiter | VOXBOX,1,0,0,1,6,55,1,1,1,3,1,2,1,4,0,-39,1,1,6.5,0.2,7.8,4,0,0,0
+Bass Fuzz & Comp,Bass | Dark | Saturated | Present | Heavy | Compressor | VOXBOX,1,0,0,1,6,55,1,1,3.7,3,1,0,0,2,0,-36,1,1,4.3,0,7.4,4,0,0,0
+Bass Safe Comp,Bass | Dark | Light | Present | Line | Compressor | VOXBOX,1,0,0,0,6,40,1,1,3.7,4,1,0,0,2,0,-24,1,1,3.3,0,7.4,4,0,0,0
+Fat Snare,Dark | Snare | Drums | Saturated | Heavy | Line | VOXBOX,1,0,0,0,5,60,1,1,2.8,0,0,0,0,4,0.9,-36,1,1,7.4,9.1,6.9,4,3,6,0
+Hi-Fi Overheads,Dark | De-Ess | Drums | Limiter | Line | VOXBOX,1,0,0,0,3.9,40,1,0,2,0,0,2,1,4,10,6.7,1,1,8.7,3,5,3,0,8,0
+Hypster Bass,Dark | Bass | Mic | Saturated | VOXBOX,1,0,0,1,10,60,1,1,1.9,4,0,2,1,4,0.9,-39,1,0,8.7,10,8.3,4,3,2,0
+Hypster Kick,Dark | Kick | De-Ess | Drums | Saturated | Line | VOXBOX,1,1,0,0,8,60,1,0,0,0,0,2,1,2,2.8,-39,1,0,10,3.7,2.8,3,2,0,0
+Hypster Overheads,Dark | Drums | Saturated | Heavy | Line | VOXBOX,1,0,0,0,10,60,1,1,10,1,0,2,1,4,2.2,-33.3,1,1,10,5,6.7,3,0,2,0
+Hypster Snare,Dark | Snare | Drums | Saturated | Heavy | Line | VOXBOX,1,2,0,0,6.5,60,1,1,3.3,0,0,2,1,4,0.9,-37.3,1,1,9.1,10,5,4,2,7,0
+Kick Drum Sweetener,Dark | Kick | Light | Drums | Line | VOXBOX,1,0,0,0,4.3,40,1,1,5,4,0,0,0,4,1.5,0,1,1,7.8,4.6,5,2,1,3,0
+Rock Guitar,Dark | De-Ess | Guitar | Saturated | Line | VOXBOX,1,0,0,0,3.9,60,1,1,2.6,0,1,0,0,4,0,-36,1,1,9.4,6.5,2.8,7,0,2,0
+Synth Bass Sweetener,Dark | Bass | De-Ess | Light | Saturated | Line | VOXBOX,1,0,0,0,5.9,60,1,1,2.6,0,0,0,0,4,3.9,-37.3,1,1,2.8,5,3.5,3,3,3,0
+Hi-Fi Electric Bass,Bass | Dark | Saturated | Present | Limiter | Heavy | Line | VOXBOX,1,0,0,0,5,60,1,1,2.6,4,0,2,1,4,1.1,-33.3,1,1,6.5,4.6,7.4,0,3,3,0
+Bass Tuff Comp,Bass | Dark | Present | Limiter | Heavy | Line | Compressor | VOXBOX,1,0,0,0,8.1,40,1,1,7.4,3,2,0,1,4,0,-16,1,0,4.6,0.7,8.1,5,0,2,0
+Medium Comp Male Voice,Dark | Vocal | De-Ess | Light | Present | Compressor | VOXBOX,1,0,0,0,5.4,40,1,1,3.9,4,2,0,0,2,0,-16,1,0,5,0,7.4,4,1,0,0
+Medium Comp Rock Vocal,Dark | Vocal | De-Ess | Present | Heavy | Compressor | VOXBOX,1,0,0,0,6.7,40,1,1,3.9,2,2,2,1,2,0.7,-33.3,1,0,5,0,7.8,5,3,0,0
+Telephone Vox,Dark | Vocal | Saturated | Heavy | VOXBOX,1,2,0,1,10,60,1,1,10,0,0,2,1,4,1.9,-36,1,1,6.7,8.3,5.6,10,9,0,0
+Warm Male Vox,Dark | Vocal | De-Ess | Saturated | Heavy | VOXBOX,1,1,0,0,2.8,60,1,1,5,0,0,2,1,0,3.9,-18.7,1,1,5,1.1,7.4,3,0,2,0
+Hot Female Vox,Dark | Vocal | Saturated | Present | Heavy | VOXBOX,1,0,0,0,7.4,60,1,1,6.7,0,0,2,1,4,2.6,-26.7,1,1,5,0,7,5,1,0,0
+Hypster Female Vox,Dark | Vocal | Saturated | Present | Heavy | VOXBOX,1,0,0,0,9.4,60,1,1,8.3,0,0,2,1,4,1.5,-36,1,1,5,0,7,5,1,0,0
+Medium Comp & De-ess Female,Dark | Vocal | De-Ess | Light | Compressor | VOXBOX,1,0,0,0,5,40,1,1,3.7,4,0,2,1,2,0.9,-16,1,1,4.6,0,8.3,5,5,10,0
+Gentle Comp Female Voice,Dark | Vocal | Light | Line | Compressor | VOXBOX,1,0,0,0,5.4,40,1,1,5,4,1,0,0,2,10,-17.3,1,0,3,1,8.7,6,5,10,0
+Heavy Comp & De-ess Male,Dark | Vocal | De-Ess | Heavy | Line | Compressor | VOXBOX,1,0,0,0,6.7,40,1,1,6.7,1,0,2,1,2,1.7,-18.7,1,1,4.3,0,8.3,4,0,2,0
+Heavy Comp Rock Vocal,Dark | Vocal | De-Ess | Present | Heavy | Line | Compressor | VOXBOX,1,0,0,0,6.7,40,1,1,5,0,3,2,1,2,0.2,-24,1,1,5,0,8,4,5,0,0
+Hi-Fi BGVs,Dark | Vocal | Limiter | Heavy | Line | VOXBOX,1,0,0,0,10,40,1,1,10,0,0,2,1,4,3.7,0,1,1,7.4,1.9,5.6,5,1,2,0
+De-ess Female Vocal,Dark | Vocal | De-Ess | Line | VOXBOX,1,0,0,0,4.3,40,1,0,0,1,0,2,1,3,2.8,0,0,0,4,0,8,4,4,10,0
+De-ess Male Vocal,Dark | Vocal | De-Ess | Line | VOXBOX,1,0,0,0,4.3,40,1,0,0,1,0,2,1,2,3.3,0,0,0,4.6,0,8.3,4,0,2,0
+Hi-Fi Snare,Dark | Light | Drums | Limiter | Line | VOXBOX,1,2,0,0,5,40,1,1,3.7,4,0,2,1,4,1.9,-11,1,1,6.7,6,8,6,2,7,0
+Snare Drum Sweetener,Dark | Light | Drums | Present | VOXBOX,1,0,0,0,4.3,40,1,1,5,3,0,0,0,4,2.6,0,1,1,4.6,1.7,5.6,6,3,0,0
+Hi-Fi Kick,Dark | De-Ess | Light | Drums | Present | Heavy | Line | VOXBOX,1,0,0,0,5,40,1,1,5.6,4,2,2,1,0,7.4,0,1,1,2.8,0.7,5,2,0,3,0
+Hypster Drum Bus,Dark | De-Ess | Drums | Saturated | VOXBOX,1,1,0,0,5.6,60,1,1,1.9,2,0,2,1,1,0.7,-39,1,1,3.3,1.7,4,7,5,5,0
+Compressão Forte,Heavy | VOXBOX,1,0,0,0,7.5,45,0,1,8,0,4,0,0,1,5,-6,1,1,0,0,0,4,4,5,0
+Drum Tightener,Dark | Light | Drums | Present | Limiter | Line | VOXBOX,1,1,0,0,5,50,1,1,2.8,1,0,2,1,4,0.9,-25.3,1,1,7.4,2.8,2.6,2,3,7,0
+Gentle Compression,Dark | Light | Line | Compressor | VOXBOX,1,0,0,0,5.2,40,1,1,5,4,0,0,0,2,10,0,1,0,0,0,0,5,5,10,0
+Grand Piano,Dark | Light | Present | Line | VOXBOX,1,1,0,0,5,40,1,1,5,0,4,0,0,4,0,0,1,0,8.3,6.7,2.8,0,3,1,0
+Hi-Fi Drum Bus,Dark | Light | Drums | Present | Limiter | Line | VOXBOX,1,0,0,0,5,40,1,1,5,3,0,2,1,4,2.8,0,1,1,3.7,1.7,4.3,0,2,10,0
+Kick Drum Gentle Comp,Dark | Light | Drums | Present | Compressor | VOXBOX,1,0,0,0,5,40,1,1,3.7,1,2,0,0,2,0,-12,1,0,4.3,0,7,1,0,3,0
+Kick Drum Tight Comp,Dark | Light | Drums | Present | Compressor | VOXBOX,1,0,0,0,5,40,1,1,5,0,3,0,0,2,0,-4,1,1,4.6,0,7,2,0,3,0
+Rhodes Warmer,Dark | Light | Present | VOXBOX,1,0,0,0,2.6,55,1,1,2.8,0,0,2,1,4,0.9,-18.7,1,1,1.9,1.9,1.5,4,5,2,0
+Strings Sweetener,Dark | Light | Present | VOXBOX,1,0,0,0,2.6,40,1,1,7.4,4,4,0,0,4,0,8,1,1,2.8,0.7,2.8,5,9,0,0
+Hot Drum Bus,Dark | Drums | Saturated | Present | Limiter | Heavy | Line | VOXBOX,1,1,0,0,4.3,60,1,1,3.1,4,0,2,1,4,0.9,-33.3,1,1,7.4,1.9,2.8,0,5,0,0
+Tuff & Dirty Compression,Dark | Saturated | Present | Heavy | Compressor | VOXBOX,1,0,0,0,7.4,40,1,1,5.6,1,1,2,1,4,4.8,-13.3,1,1,2.6,10,7.4,5,5,5,0
+Medium Compression,Dark | Heavy | Compressor | VOXBOX,1,0,0,0,5,40,1,1,6.7,1,2,0,0,2,10,0,1,0,0,0,0,5,5,5,0
+Tuff Compression,Dark | Heavy | Compressor | VOXBOX,1,0,0,0,6.7,40,1,1,6.7,0,2,0,0,2,10,-12,0,0,0,0,0,5,5,5,0

@@ -65,7 +65,7 @@ VocaEditor::VocaEditor(VocaProcessor& p):AudioProcessorEditor(p),processor(p),gr
  options.onClick=[this]{
   juce::PopupMenu menu,renderers;menu.setLookAndFeel(&juce::LookAndFeel::getDefaultLookAndFeel());
   renderers.addItem(1,"Compatibility (CPU / GDI)",true,processor.softwareGraphics.load());
-  const auto* peer=getPeer();const bool accelerated=peer&&peer->getAvailableRenderingEngines().size()>1;
+  auto* peer=getPeer();const bool accelerated=peer&&peer->getAvailableRenderingEngines().size()>1;
   renderers.addItem(2,"Accelerated (GPU / Direct2D)",accelerated,!processor.softwareGraphics.load());
   menu.addSubMenu("Graphics",renderers);
   auto safe=juce::Component::SafePointer<VocaEditor>(this);

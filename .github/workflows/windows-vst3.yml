@@ -2,7 +2,6 @@ name: Windows x64 VST3 (MSVC)
 on:
   workflow_dispatch:
   push:
-    branches: [main]
     tags: ['v*']
 permissions:
   contents: read

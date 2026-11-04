@@ -1,31 +1,61 @@
 name: Windows x64 VST3 (MSVC)
 on:
   workflow_dispatch:
+  push:
+    tags: ['v*']
 permissions:
   contents: read
 jobs:
   build:
     runs-on: windows-2022
     timeout-minutes: 45
+    permissions:
+      contents: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Build and test with Visual Studio 2022
+      - uses: actions/checkout@v4
+      - name: Configure MSVC x64
+        run: cmake -S . -B build-msvc -G "Visual Studio 17 2022" -A x64
+      - name: Build and test Debug
         shell: pwsh
-        run: ./scripts/build-windows.ps1
-      - name: Package Windows VST3 and sources
+        run: |
+          cmake --build build-msvc --config Debug --parallel 2
+          if ($LASTEXITCODE -ne 0) { throw 'Debug build failed' }
+          ctest --test-dir build-msvc -C Debug --output-on-failure
+          if ($LASTEXITCODE -ne 0) { throw 'Debug tests failed' }
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item build-msvc/Testing/Temporary/LastTest.log dist/Debug-tests.log
+          Compress-Archive -Path build-msvc/VocaBox_artefacts/Debug/VST3/VocaBox.vst3 -DestinationPath dist/VocaBox-Windows-x64-Debug.zip
+          $pdbs = @(Get-ChildItem build-msvc -Recurse -Filter *.pdb)
+          if ($pdbs.Count -gt 0) { Compress-Archive -Path $pdbs.FullName -DestinationPath dist/VocaBox-Windows-x64-PDBs.zip }
+      - name: Build and test Release
+        shell: pwsh
+        run: |
+          ./scripts/build-windows.ps1
+          if ($LASTEXITCODE -ne 0) { throw 'Release build/tests failed' }
+          Copy-Item build-msvc/Testing/Temporary/LastTest.log dist/Release-tests.log
+          foreach ($log in @('dist/Debug-tests.log', 'dist/Release-tests.log')) {
+            if (Select-String -Path $log -Pattern 'JUCE Assertion failure|Leaked objects detected|runtime error:') { throw "Assertions in $log" }
+          }
+      - name: Package verified Windows PE32+ AMD64 bundle
         shell: pwsh
         run: |
           python scripts/package.py --bundle build-msvc/VocaBox_artefacts/Release/VST3/VocaBox.vst3
           if ($LASTEXITCODE -ne 0) { throw 'Packaging failed' }
-          @('Compiler: MSVC / Visual Studio 2022', 'Runner: windows-2022', "Commit: $env:GITHUB_SHA", "Run: $env:GITHUB_RUN_ID", 'Tests: DSP, Processor, VST3Host completed successfully') | Set-Content dist/Windows-MSVC-build.txt
-      - name: Upload VST3, source and test reports
-        uses: actions/upload-artifact@v4
+          @('Compiler: MSVC / Visual Studio 2022', "Commit: $env:GITHUB_SHA", "Run: $env:GITHUB_RUN_ID", 'Debug and Release: DSP, Tube, Processor, VST3Host, EditorLifetime passed', 'Studio One and official Steinberg validator: not executed') | Set-Content dist/Windows-MSVC-build.txt
+          @('# VocaBox: 100 presets e saturação de válvula', '', 'VST3 Windows x64 compilado com MSVC. Banco de 100 presets, saturação assimétrica e correções de encerramento da interface.', '', 'Download: VocaBox-Windows-x64.zip. Feche a DAW e copie a pasta inteira VocaBox.vst3 para C:\Program Files\Common Files\VST3\.', '', "Commit compilado: $env:GITHUB_SHA", '', 'Suítes Debug/Release executadas no Windows. Studio One/Fender Studio Pro e validator oficial Steinberg não foram executados. O congelamento informado na DAW não é considerado resolvido por estes testes.', '', 'Fontes, hashes SHA256, logs e símbolos Debug estão anexados.') | Set-Content -Encoding utf8 dist/release-notes.md
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: VocaBox-Windows-x64-MSVC
-          if-no-files-found: error
+          if-no-files-found: warn
           path: |
-            dist/*.zip
-            dist/SHA256SUMS.txt
-            dist/Windows-MSVC-build.txt
+            dist/*
             build-msvc/Testing/Temporary/LastTest.log
+      - name: Publish release for this exact tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create $env:GITHUB_REF_NAME --verify-tag --title "VocaBox $env:GITHUB_REF_NAME - 100 presets e válvula" --notes-file dist/release-notes.md dist/*.zip dist/SHA256SUMS.txt dist/Windows-MSVC-build.txt dist/Debug-tests.log dist/Release-tests.log
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }

@@ -1,6 +1,7 @@
 #pragma once
 #include "PluginProcessor.h"
 #include "FontesUI.h"
+#include "Common/EditorLifetime.h"
 inline void pintarEstrela(juce::Graphics& g,juce::Point<float> centro,float raio,bool preenchida){juce::Path desenho;desenho.addStar(centro,5,raio*.43f,raio);if(preenchida)g.fillPath(desenho);else g.strokePath(desenho,juce::PathStrokeType(1.1f));}
 // Filtros cumulativos: todos os chips precisam corresponder ao mesmo preset.
 class AparenciaPresets final:public juce::LookAndFeel_V4 {
@@ -42,13 +43,14 @@ public:
 class PresetBrowser final:public juce::Component,private juce::ListBoxModel {
 public:
  explicit PresetBrowser(VocaProcessor&);
- ~PresetBrowser()override{setLookAndFeel(nullptr);}
+ ~PresetBrowser()override{voca::cancelDialog(deleteDialog);setLookAndFeel(nullptr);}
  void paint(juce::Graphics&)override;void resized()override;
 private:
  void atualizar();void desenharTags();bool corresponde(const Preset&)const;
  int getNumRows()override{return (int)linhas.size();}
  void paintListBoxItem(int,juce::Graphics&,int,int,bool)override;
  void selectedRowsChanged(int)override;
+ std::unique_ptr<juce::AlertWindow> deleteDialog;
  AparenciaPresets aparencia;VocaProcessor& processador;juce::TextEditor busca,nome;
  juce::TextButton fechar{juce::String::fromUTF8("×")},tags{juce::String::fromUTF8("TAGS ▾")},limpar{juce::String::fromUTF8("×")},favoritos{juce::String::fromUTF8("FAVORITES ☆")},tipo{"TYPE"},artista{"ARTIST"},todos{"ALL"},estrela{juce::String::fromUTF8("☆")},excluir{"DELETE"},renomear{"RENAME"},salvar{"SAVE"};
  juce::Label titulo,aviso;juce::Viewport rolagem;juce::Component grade;

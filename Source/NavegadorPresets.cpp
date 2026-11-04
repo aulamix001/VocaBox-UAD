@@ -14,7 +14,20 @@ PresetBrowser::PresetBrowser(VocaProcessor& p):processador(p){
  estrela.onClick=[this]{processador.alternarFavorito(processador.getCurrentProgram());atualizar();};
  salvar.onClick=[this]{auto n=nome.getText();const auto& atual=processador.bank[(size_t)processador.getCurrentProgram()];if(!atual.isUser&&n==atual.name)n+=" (User)";auto categorias=atual.tags;for(auto& f:filtros)if(!f.containsChar(':'))categorias.addIfNotAlreadyThere(f);if(processador.salvarPreset(n,categorias)<0)aviso.setText(juce::String::fromUTF8("Nome vazio ou já existente."),juce::dontSendNotification);else{busca.clear();somenteFavoritos=false;atualizar();}};
  renomear.onClick=[this]{if(!processador.renomearPreset(processador.getCurrentProgram(),nome.getText()))aviso.setText(juce::String::fromUTF8("Nome vazio ou já existente."),juce::dontSendNotification);atualizar();};
- excluir.onClick=[this]{const int indice=processador.getCurrentProgram();const auto id=processador.bank[(size_t)indice].id;auto seguro=juce::Component::SafePointer<PresetBrowser>(this);juce::AlertWindow::showOkCancelBox(juce::MessageBoxIconType::QuestionIcon,"Excluir preset",processador.bank[(size_t)indice].name,"Excluir","Cancelar",this,juce::ModalCallbackFunction::create([seguro,id](int resposta){if(seguro&&resposta){for(size_t i=0;i<seguro->processador.bank.size();++i)if(seguro->processador.bank[i].id==id){seguro->processador.excluirPreset((int)i);break;}seguro->atualizar();}}));};
+ excluir.onClick=[this]{
+  voca::cancelDialog(deleteDialog);
+  const int index=processador.getCurrentProgram();if(!processador.bank[(size_t)index].isUser)return;
+  const auto id=processador.bank[(size_t)index].id;
+  deleteDialog=std::make_unique<juce::AlertWindow>("Excluir preset",processador.bank[(size_t)index].name,juce::MessageBoxIconType::QuestionIcon);
+  deleteDialog->addButton("Excluir",1);deleteDialog->addButton("Cancelar",0);
+  auto safe=juce::Component::SafePointer<PresetBrowser>(this);
+  auto dialog=juce::Component::SafePointer<juce::AlertWindow>(deleteDialog.get());
+  deleteDialog->enterModalState(true,juce::ModalCallbackFunction::create([safe,dialog,id](int answer){
+   if(!safe||!dialog||safe->deleteDialog.get()!=dialog.getComponent())return;
+   if(answer){for(size_t i=0;i<safe->processador.bank.size();++i)if(safe->processador.bank[i].id==id){safe->processador.excluirPreset((int)i);break;}safe->atualizar();}
+   if(safe)safe->deleteDialog.reset();
+  }),false);
+ };
  setSize(tema::presets::largura,tema::presets::altura);atualizar();
 }
 void PresetBrowser::paint(juce::Graphics& g){g.setGradientFill(juce::ColourGradient(juce::Colour(tema::cores::browserTopo),0,0,juce::Colour(tema::cores::browserBase),0,(float)getHeight(),false));g.fillAll();g.setColour(juce::Colour(tema::cores::presetSelecao));g.fillRect(8,nome.getY(),getWidth()-16,excluir.getBottom()-nome.getY()+5);g.setColour(juce::Colour(tema::cores::browserBorda));g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(.5f),3,1);auto* ativo=aba==0?&tipo:aba==1?&artista:&todos;if(mostrarTags){g.setColour(juce::Colour(tema::cores::browserTexto));auto r=ativo->getBounds();g.fillRect(r.getX(),r.getBottom()-2,r.getWidth(),2);}}
@@ -22,7 +35,7 @@ bool PresetBrowser::corresponde(const Preset& p)const{if(somenteFavoritos&&!p.fa
 void PresetBrowser::desenharTags(){
  botoesTags.clear();chips.clear();juce::StringArray valores;
  if(aba!=1)valores={"Present","Light","Heavy","Saturated","Best Of","Vocal","Drums","Bright","Limiter","De-Ess","Dark","Bass"};
- for(auto& p:processador.bank){if(aba!=1)for(auto& t:p.tags)if(t!=p.group)valores.addIfNotAlreadyThere(t);if(aba!=0&&p.artist.isNotEmpty())valores.addIfNotAlreadyThere("artist:"+p.artist);if(aba==2&&p.group.isNotEmpty())valores.addIfNotAlreadyThere("group:"+p.group);}
+ for(auto& p:processador.bank){if(aba!=1)for(auto& t:p.tags)if(t!=p.group||p.group!="VOXBOX")valores.addIfNotAlreadyThere(t);if(aba!=0&&p.artist.isNotEmpty())valores.addIfNotAlreadyThere("artist:"+p.artist);if(aba==2&&p.group.isNotEmpty())valores.addIfNotAlreadyThere("group:"+p.group);}
  if(aba!=0)std::sort(valores.begin(),valores.end(),[](const juce::String& a,const juce::String& b){const auto nome=[](const juce::String& v){return v.containsChar(':')?v.fromFirstOccurrenceOf(":",false,false):v;};return nome(a).compareIgnoreCase(nome(b))<0;});
  auto criar=[this](const juce::String& valor,bool chip){auto b=std::make_unique<juce::TextButton>((valor.containsChar(':')?valor.fromFirstOccurrenceOf(":",false,false):valor)+(chip?juce::String::fromUTF8(" ×"):""));b->getProperties().set("chip",chip);b->onClick=[this,valor,chip]{if(chip)filtros.removeString(valor);else filtros.addIfNotAlreadyThere(valor);atualizar();};b->setColour(juce::TextButton::buttonColourId,juce::Colour(chip?tema::cores::tagSelecionada:tema::cores::tag));if(chip)addAndMakeVisible(*b);else grade.addAndMakeVisible(*b);return b;};
  for(auto& f:filtros)chips.push_back(criar(f,true));for(auto& v:valores)if(!filtros.contains(v))botoesTags.push_back(criar(v,false));

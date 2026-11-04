@@ -1,6 +1,6 @@
 # VocaBox — VST3 Windows x64
 
-Plugin de áudio C++/JUCE com painel baseado na referência visual enviada, 25 parâmetros automatizáveis e 50 presets. O HTML original continua disponível como protótipo independente. O VST3 processa áudio de verdade; não depende do HTML, de navegador, de UAD, de hardware DSP ou de conexão à Internet durante o uso.
+Plugin de áudio C++/JUCE com painel baseado na referência visual enviada, 25 parâmetros automatizáveis e 100 presets. O HTML original continua disponível como protótipo independente. O VST3 processa áudio de verdade; não depende do HTML, de navegador, de UAD, de hardware DSP ou de conexão à Internet durante o uso.
 
 Implementação independente e aproximada, orientada pelas páginas do manual fornecidas. Não é um produto Manley/Universal Audio, nem uma reprodução sonora certificada ou idêntica do VOXBOX. Nomes dos presets e inscrições do painel são referências do projeto.
 
@@ -23,11 +23,11 @@ A compilação entregue é Windows x86-64 (não ARM, não VST2). Veja `VALIDATIO
 - Os ajustes são salvos na sessão da DAW; os IDs dos parâmetros são estáveis.
 - O rodapé mostra a redução **real** de ganho do compressor e do de-esser. O medidor acompanha o seletor, sem sinal aleatório simulado.
 
-`Resources/presets.json` é a fonte de dados dos 50 presets e dos 25 parâmetros; `Source/Parameters.h` é gerado por `python scripts/generate_parameters.py`. Todos os presets fotografados usam **estimativas visuais** para valores contínuos, não exportações oficiais UAD. Os testes garantem aplicação dos valores armazenados aos controles, não exatidão numérica das leituras das fotos. As categorias seguem os grupos informados nas referências; um mesmo preset pode pertencer a várias tags, sem duplicação.
+`Resources/presets.json` é a fonte de dados dos 100 presets e dos 25 parâmetros; `Source/Parameters.h` é gerado por `python scripts/generate_parameters.py`. Todos os presets fotografados usam **estimativas visuais** para valores contínuos, não exportações oficiais UAD. Os testes garantem aplicação dos valores armazenados aos controles, não exatidão numérica das leituras das fotos. As categorias seguem os grupos informados nas referências; um mesmo preset pode pertencer a várias tags, sem duplicação.
 
 ## Áudio implementado
 
-Entrada → filtro passa-altas → compressor óptico aproximado → pré-amplificação/saturação suave → três bandas paramétricas → de-esser ou limiter → saturação suave de saída opcional → OUTPUT.
+Entrada → filtro passa-altas → compressor óptico aproximado → pré-amplificação/saturação assimétrica de válvula → três bandas paramétricas → de-esser ou limiter → saturação suave de saída opcional → OUTPUT.
 
 - Compressor: soft knee, relação nominal 3:1, redução limitada a 16 dB. Threshold cresce no sentido de mais compressão.
 - Ataques aproximados: FAST 4 ms, MED FAST 8 ms, MEDIUM 16 ms, MED SLOW 35 ms, SLOW 70 ms. O manual fornece os extremos; valores intermediários são escolhas de implementação.
@@ -37,6 +37,8 @@ Entrada → filtro passa-altas → compressor óptico aproximado → pré-amplif
 - Mono/estéreo, processamento float, sample rates de 22,05 a 96 kHz testados. Mudanças de ganho e filtros são suavizadas. Sem alocações, arquivos ou mutexes no loop de processamento.
 
 O mapeamento de áudio usa `INPUT 0…10 → -15…+15 dB`, e `GAIN 40…60 → 0…20 dB` em LINE, com +20 dB adicional em MIC. Isso adapta níveis de uma DAW: não é calibração de dBu para dBFS. O preset forte usa INPUT 7,5, GAIN 45, THRESHOLD 8, FAST/SLOW, OUTPUT -6 dB. Não existe garantia de uma redução fixa em qualquer gravação.
+
+O estágio de válvula usa uma curva assimétrica com bias, ganho unitário para sinais fracos, remoção DC em 8 Hz e antialiasing por antiderivada de primeira ordem (ADAA). INPUT e GAIN aumentam a excitação; OUTPUT ajusta o nível final. Harmônicos pares e ímpares e compressão suave são intencionais. ADAA reduz aliasing, mas não equivale a oversampling completo. O som processado muda em relação à versão anterior; IDs, valores dos presets e formatos de sessão permanecem compatíveis. O bypass continua disponível para comparação.
 
 Limitações: não há modelo elétrico de válvulas, transformadores ou memória óptica de múltiplos estágios, oversampling, phantom power, hardware externo ou roteamento dos conectores traseiros. O HPF foi atualizado conforme o manual para FLAT/80/120 Hz, com inclinação de 6 dB/oitava. As escalas de EQ do protótipo limitam os ganhos/corte a 10 dB. O seletor de medição mantém os quatro estados do HTML, com LINE IN/G-R compartilhando o estado de redução. O VST3 usa janela nativa de presets com favoritos e edição da biblioteca do usuário.
 
@@ -82,7 +84,7 @@ JUCE 7 é distribuído sob licença comercial ou GPLv3; consulte `THIRD_PARTY/JU
 
 A janela de 385 × 640 é flutuante, não modal e abre fora do plugin, preferencialmente à esquerda. Se não houver espaço, usa outro lado e mantém a janela acessível na tela. O cabeçalho permite arrastar a janela; fechar e reabrir recalcula a posição a partir do plugin. Ela oferece busca por nome/tags, abas TYPE/ARTIST/ALL, chips removíveis com filtros cumulativos (AND) e favoritos persistentes. DELETE e RENAME atuam apenas em presets do usuário; DELETE pede confirmação. SAVE grava os parâmetros atuais com nome e tags. No Windows, a biblioteca fica em `%APPDATA%\VocaBox\biblioteca-v2.json`; no HTML, fica no armazenamento local do navegador. As bibliotecas dos dois aplicativos são independentes.
 
-O HTML mantém `voxbox.importPresets(arrayOuJSON)` e `voxbox.exportPresets()`. A migração reconhece `[GRUPO] Nome`, `GRUPO - Nome` e `GRUPO_Nome`, preserva tags explícitas e infere tags adicionais pelo nome. Sem prefixo, o grupo padrão é VOXBOX; nomes ambíguos permanecem importados e aparecem no relatório do console e em `voxbox.getImportReport()`. ARTIST usa metadados `artist`/`author` ou o sufixo `by Nome`; sem informação, a aba fica vazia. Os 50 snapshots de fábrica mantêm seus parâmetros originais. As cinco referências finais seguem a sequência Line enviada pelo usuário.
+O HTML mantém `voxbox.importPresets(arrayOuJSON)` e `voxbox.exportPresets()`. A migração reconhece `[GRUPO] Nome`, `GRUPO - Nome` e `GRUPO_Nome`, preserva tags explícitas e infere tags adicionais pelo nome. Sem prefixo, o grupo padrão é VOXBOX; nomes ambíguos permanecem importados e aparecem no relatório do console e em `voxbox.getImportReport()`. ARTIST usa metadados `artist`/`author` ou o sufixo `by Nome`; sem informação, a aba fica vazia. Os 50 snapshots anteriores mantêm seus IDs, ordem e parâmetros originais. Os outros 50 são ajustes autorais para instrumentos, não transcrições de presets UAD. As cinco referências finais seguem a sequência Line enviada pelo usuário.
 
 Todos os 16 knobs usam a mesma pele procedural: anel de base, estrias, granulação, sombras de contato/projetada e luz superior esquerda fixa. No HTML, canvas @3x; no VST3, atlas de 128 quadros @3x gerado da mesma função. Os diâmetros nominais são: SOURCE 48 px, INPUT/GAIN 52 px, medidor PREOUT/EQ OUT 44 px, controles médios 48 px, bandas de EQ 42 px e seletores de frequência 36 px. A travessa central elevada, o inserto curto e as estrias discretas acompanham o valor; a iluminação permanece fixa. Mudanças visuais são suavizadas. Botão direito ou Ctrl+clique abre a entrada numérica; arraste vertical, Shift, scroll e duplo clique continuam disponíveis. A pele é uma reconstrução visual, sem certificação de identidade fotográfica com a referência.
 
@@ -105,3 +107,13 @@ Edite `Resources/tema-ui.json` para ajustar as cores principais, os diâmetros e
 Depois de editar o tema, execute `node scripts/export-ui.cjs` (com Playwright/Chromium) e `python scripts/generate_parameters.py`, e recompile. O primeiro comando já executa `scripts/sincronizar-tema.py`. Os arquivos gerados e recursos estão versionados, portanto a compilação comum não exige esses passos nem a instalação da fonte.
 
 O painel usa `#4A4478 → #3A3560`, metal escovado sutil, VU com moldura escura fina e faixa positiva simples. As quatro posições do medidor foram preservadas; LINE IN/G-R continuam compartilhados, com textos visualmente separados. Veja [UI_CHANGES.md](UI_CHANGES.md) para a lista completa de arquivos, valores antigos → novos, decisões e comparações antes/depois.
+
+## Banco de 100 presets
+
+Os primeiros 50 programas foram preservados na mesma ordem para manter sessões e favoritos existentes. Os 50 adicionais aparecem nos módulos Male Vocal, Female Vocal, Acoustic Guitar, Electric Guitar, Electric Bass, Upright Bass, Kick, Snare, Toms, Overheads, Drum Bus, Piano, Keys, Strings, Brass & Winds, Synth, Percussion e Acoustic (ukulele/mandolim). As tags Best Of, Dark e Light permitem filtrar estilos em conjunto com o instrumento. Best Of é uma seleção editorial, não um indicador de qualidade medido.
+
+Cada preset carrega automaticamente um snapshot completo dos 25 controles no VST3 e no HTML. “Mapeamento automático” aqui significa aplicação desses valores ao selecionar o preset, sem detecção automática do instrumento nem MIDI Learn. O projeto atual não implementa MIDI Learn/takeover. Os valores são pontos de partida: ajuste INPUT/GAIN e OUTPUT ao nível da gravação.
+
+Depois de editar os presets autorais em `Resources/presets.json`, execute `python3 scripts/sync_factory_presets.py` para sincronizar o HTML independente e a tabela CSV. Os primeiros 50 continuam definidos também nos blocos históricos do HTML; `node Tests/PresetBank.test.cjs` detecta divergências entre as duas versões. Os recursos de imagem não precisam ser regenerados para alterar apenas presets.
+
+Validação: `node Tests/PresetBank.test.cjs` seleciona os 100 presets pela interface e confere os 25 valores. `ctest --test-dir build --output-on-failure` inclui análise espectral da saturação e 300 ciclos nativos de editor (requer display no Linux). Consulte `Review/AUDIT.md` para escopo e limitações da auditoria de encerramento e gráficos.

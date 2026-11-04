@@ -49,3 +49,53 @@ Hot Drum Bus,Dark | Drums | Saturated | Present | Limiter | Heavy | Line | VOXBO
 Tuff & Dirty Compression,Dark | Saturated | Present | Heavy | Compressor | VOXBOX,1,0,0,0,7.4,40,1,1,5.6,1,1,2,1,4,4.8,-13.3,1,1,2.6,10,7.4,5,5,5,0
 Medium Compression,Dark | Heavy | Compressor | VOXBOX,1,0,0,0,5,40,1,1,6.7,1,2,0,0,2,10,0,1,0,0,0,0,5,5,5,0
 Tuff Compression,Dark | Heavy | Compressor | VOXBOX,1,0,0,0,6.7,40,1,1,6.7,0,2,0,0,2,10,-12,0,0,0,0,0,5,5,5,0
+Male Vocal Intimate,Male Vocal | Line | Compressor | EQ | Vocal | De-Ess | Best Of,1,1,0,0,5.2,40,1,1,4.8,2,2,0,1,2,4.5,-2,1,0,1.2,1.8,1.5,4,4,4,0
+Male Vocal Broadcast,Male Vocal | Line | Compressor | EQ | Vocal | De-Ess,1,1,0,0,5.6,40,1,1,6.4,1,2,0,1,2,4.5,-3,1,0,2.2,2.4,2.5,4,3,4,0
+Male Vocal Rock Forward,Male Vocal | Line | Compressor | EQ | Vocal | De-Ess,1,1,0,0,6,40,1,1,7,1,1,0,1,2,4.5,-4,1,0,1,2.8,3.2,4,4,4,0
+Male Vocal Dark Velvet,Male Vocal | Line | Compressor | EQ | Vocal | De-Ess | Dark,1,1,0,0,5,40,1,1,5.6,2,3,0,1,2,4.5,-2.5,1,1,2.8,2,0.8,4,4,3,0
+Male Vocal Light Air,Male Vocal | Line | Compressor | EQ | Vocal | De-Ess | Light | Bright,1,1,0,0,4.7,40,1,1,4.3,3,1,0,1,2,4.5,-1.5,1,0,0.8,1.2,3.5,4,4,5,0
+Female Vocal Intimate,Female Vocal | Line | Compressor | EQ | Vocal | De-Ess,1,1,0,0,4.9,40,1,1,4.6,2,2,0,1,3,4.5,-2,1,0,0.7,1.6,2,4,4,4,0
+Female Vocal Pop Lead,Female Vocal | Line | Compressor | EQ | Vocal | De-Ess | Best Of,1,1,0,0,5.5,40,1,1,6.2,1,1,0,1,3,4.5,-3,1,0,1,2.2,3.4,4,4,5,0
+Female Vocal Dark Silk,Female Vocal | Line | Compressor | EQ | Vocal | De-Ess | Dark,1,1,0,0,5.1,40,1,1,5.3,2,3,0,1,3,4.5,-2.5,1,1,2,1.8,0.6,4,4,3,0
+Female Vocal Light Breath,Female Vocal | Line | Compressor | EQ | Vocal | De-Ess | Light | Bright,1,2,0,0,4.6,40,1,1,4.1,3,1,0,1,3,4.5,-1.5,1,0,0.5,1.3,3.8,4,4,5,0
+Female Vocal Rock Edge,Female Vocal | Line | Compressor | EQ | Vocal | De-Ess,1,1,0,0,5.9,40,1,1,6.8,1,1,0,1,3,4.5,-4,1,0,1.2,2.7,2.7,4,4,4,0
+Acoustic Guitar Fingerstyle,Acoustic Guitar | Line | Compressor | EQ | Guitar | Acoustic | Best Of,1,1,0,0,4.8,40,1,1,4.2,3,1,0,0,3,0,-2,1,0,1.8,2.2,2.5,4,3,4,0
+Acoustic Guitar Strum Control,Acoustic Guitar | Line | Compressor | EQ | Guitar | Acoustic,1,2,0,0,5.3,40,1,1,6.1,2,1,0,0,3,0,-3,1,0,1.1,2.8,2,4,3,4,0
+Acoustic Guitar Dark Wood,Acoustic Guitar | Line | Compressor | EQ | Guitar | Acoustic | Dark,1,1,0,0,5.1,40,1,1,4.8,3,2,0,0,3,0,-2.5,1,1,3,1.8,0.5,4,3,3,0
+Acoustic Guitar Light Shimmer,Acoustic Guitar | Line | Compressor | EQ | Guitar | Acoustic | Light | Bright,1,2,0,0,4.5,40,1,1,3.8,3,0,0,0,3,0,-1.5,1,0,0.5,1.5,4,4,3,5,0
+Acoustic Guitar Solo Focus,Acoustic Guitar | Line | Compressor | EQ | Guitar | Acoustic,1,1,0,0,5,40,1,1,5.1,2,2,0,0,3,0,-2.5,1,0,1.5,2,2.8,4,4,4,0
+Electric Guitar Clean Chime,Electric Guitar | Line | Compressor | EQ | Guitar | Best Of,1,1,0,0,4.8,40,1,1,4.4,3,1,0,0,3,0,-2,1,0,1.5,1.7,3,4,4,4,0
+Electric Guitar Crunch Body,Electric Guitar | Line | Compressor | EQ | Guitar,1,1,0,0,5.6,40,1,1,5.8,2,1,0,0,3,0,-3.5,1,1,2.7,2.5,1.5,4,3,3,0
+Electric Guitar Dark Rhythm,Electric Guitar | Line | Compressor | EQ | Guitar | Dark,1,1,0,0,5.4,40,1,1,5.4,2,2,0,0,3,0,-3,1,1,3,2.9,0.4,4,3,3,0
+Electric Guitar Lead Sustain,Electric Guitar | Line | Compressor | EQ | Guitar,1,1,0,0,6,40,1,1,7.2,1,3,0,0,3,0,-4.5,1,0,1.8,2.4,2.3,4,4,4,0
+Electric Bass Round DI,Electric Bass | Line | Compressor | EQ | Bass | Best Of,1,0,0,0,5,40,1,1,5.5,3,2,0,0,3,0,-3,1,0,3.2,2,1,2,3,3,0
+Electric Bass Pick Definition,Electric Bass | Line | Compressor | EQ | Bass,1,0,0,0,5.4,40,1,1,6.2,2,1,0,0,3,0,-3.5,1,0,2.2,2.8,3,2,4,3,0
+Electric Bass Dark Foundation,Electric Bass | Line | Compressor | EQ | Bass | Dark,1,0,0,0,5.2,40,1,1,5.9,3,3,0,0,3,0,-3.5,1,1,4,2.5,0.4,2,3,2,0
+Electric Bass Light Slap,Electric Bass | Line | Compressor | EQ | Bass | Light | Bright,1,0,0,0,4.9,40,1,1,5,1,0,0,0,3,0,-3,1,0,2.5,3.4,3.8,2,3,4,0
+Upright Bass Natural,Upright Bass | Line | Compressor | EQ | Bass,1,0,0,0,4.8,40,1,1,4.5,4,2,0,0,3,0,-2,1,0,2,2.4,1.1,3,3,3,0
+Kick Deep Punch,Kick | Line | Compressor | EQ | Drums | Best Of,1,0,0,0,5.4,40,1,1,6.3,3,0,0,0,3,0,-4,1,0,4,2.8,2,1,3,3,0
+Kick Light Tight,Kick | Line | Compressor | EQ | Drums | Light | Bright,1,0,0,0,4.7,40,1,1,5,2,0,0,0,3,0,-2.5,1,0,2.5,2.2,2.8,2,3,4,0
+Snare Body And Snap,Snare | Line | Compressor | EQ | Drums | Best Of,1,1,0,0,5.2,40,1,1,5.8,3,0,0,0,3,0,-3.5,1,0,2.4,2,3.4,5,3,4,0
+Snare Dark Room,Snare | Line | Compressor | EQ | Drums | Dark,1,1,0,0,5.5,40,1,1,6.6,2,1,0,0,3,0,-4,1,1,3,2.8,0.7,5,4,3,0
+Toms Round Impact,Toms | Line | Compressor | EQ | Drums,1,0,0,0,5.1,40,1,1,5.7,3,1,0,0,3,0,-3,1,0,3.4,2.5,2,3,3,4,0
+Overheads Light Air,Overheads | Line | Compressor | EQ | Drums | Light | Bright,1,2,0,0,4.5,40,1,1,3.8,4,0,0,1,3,4.5,-1.5,1,0,0.5,1.7,3.5,4,4,5,0
+Drum Bus Parallel Weight,Drum Bus | Line | Compressor | EQ | Drums,1,0,0,0,6,40,1,1,7.5,1,0,0,0,3,0,-5,1,0,2.8,2.4,2.2,2,3,4,0
+Drum Bus Light Glue,Drum Bus | Line | Compressor | EQ | Drums | Light | Bright | Best Of,1,0,0,0,4.6,40,1,1,4.1,4,1,0,0,3,0,-1.5,1,0,1.2,1,1.8,3,4,4,0
+Grand Piano Concert,Piano | Line | Compressor | EQ | Best Of,1,0,0,0,4.7,40,1,1,4,4,2,0,0,3,0,-2,1,0,1.8,1.4,2.2,3,3,4,0
+Grand Piano Dark Felt,Piano | Line | Compressor | EQ | Dark,1,0,0,0,5,40,1,1,4.8,3,3,0,0,3,0,-2.5,1,1,3,2,0.4,3,4,3,0
+Grand Piano Light Pop,Piano | Line | Compressor | EQ | Light | Bright,1,1,0,0,4.9,40,1,1,5.2,3,1,0,0,3,0,-2.5,1,0,1,2.2,3.4,4,3,5,0
+Rhodes Dark Lounge,Keys | Line | Compressor | EQ | Dark,1,0,0,0,5.3,40,1,1,5.6,3,2,0,0,3,0,-3,1,1,2.5,2.8,0.8,4,3,3,0
+Organ Warm Presence,Keys | Line | Compressor | EQ,1,1,0,0,5,40,1,1,4.6,3,3,0,0,3,0,-2,1,1,2.4,1.8,1.8,4,4,4,0
+Strings Light Ensemble,Strings | Line | Compressor | EQ | Light | Bright | Best Of,1,1,0,0,4.5,40,1,1,3.6,4,3,0,0,3,0,-1.5,1,0,1,1.2,2.8,4,4,5,0
+Cello Dark Solo,Strings | Line | Compressor | EQ | Dark,1,0,0,0,5,40,1,1,4.9,4,2,0,0,3,0,-2.5,1,1,2.8,2.2,0.8,4,3,3,0
+Violin Smooth Bow,Strings | Line | Compressor | EQ,1,1,0,0,4.6,40,1,1,4.2,3,2,0,0,3,0,-2,1,0,0.8,2.6,1.6,4,5,4,0
+Saxophone Warm Solo,Brass & Winds | Line | Compressor | EQ,1,1,0,0,5.2,40,1,1,5.3,2,2,0,0,3,0,-3,1,1,2,2.4,1.3,4,4,4,0
+Trumpet Soft Brass,Brass & Winds | Line | Compressor | EQ,1,1,0,0,4.8,40,1,1,4.8,3,1,0,0,3,0,-2.5,1,0,1,3.1,0.6,4,5,3,0
+Flute Light Breath,Brass & Winds | Line | Compressor | EQ | Light | Bright,1,2,0,0,4.5,40,1,1,3.9,4,2,0,0,3,0,-1.5,1,0,0.5,1.4,2.8,4,4,5,0
+Synth Bass Dark Mono,Synth | Line | Compressor | EQ | Bass | Dark | Keys,1,0,0,0,5.6,40,1,1,6.2,2,1,0,0,3,0,-4,1,1,3.8,2.5,0.5,1,3,3,0
+Synth Pad Light Wide,Synth | Line | Compressor | EQ | Light | Bright | Keys,1,1,0,0,4.4,40,1,1,3.5,4,3,0,0,3,0,-1.5,1,0,1,1.2,3,4,4,5,0
+Synth Lead Focus,Synth | Line | Compressor | EQ | Keys,1,1,0,0,5.3,40,1,1,5.7,2,1,0,0,3,0,-3,1,0,1.4,2.8,2,4,4,4,0
+Percussion Acoustic Detail,Percussion | Line | Compressor | EQ,1,1,0,0,4.8,40,1,1,4.2,4,0,0,0,3,0,-2,1,0,1.2,1.7,3.2,4,4,5,0
+Cajon Dark Body,Percussion | Line | Compressor | EQ | Dark,1,0,0,0,5.2,40,1,1,5.8,3,0,0,0,3,0,-3.5,1,1,3.6,2.5,1.2,2,3,4,0
+Ukulele Light Strum,Acoustic | Line | Compressor | EQ | Light | Bright,1,2,0,0,4.4,40,1,1,4,3,0,0,0,3,0,-1.5,1,0,1.2,1.8,3,5,4,4,0
+Mandolin Acoustic Sparkle,Acoustic | Line | Compressor | EQ,1,2,0,0,4.6,40,1,1,4.4,3,0,0,0,3,0,-2,1,0,0.7,2,3.5,5,4,5,0

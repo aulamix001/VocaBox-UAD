@@ -49,7 +49,7 @@ public:
 private:
  juce::ComponentDragger arrastador;juce::ComponentBoundsConstrainer limites;bool arrastando=false;
 };
-VocaEditor::VocaEditor(VocaProcessor& p):AudioProcessorEditor(p),processor(p){
+VocaEditor::VocaEditor(VocaProcessor& p):AudioProcessorEditor(p),processor(p),graphics(*this,p.softwareGraphics){
  setLookAndFeel(&look);face=juce::ImageCache::getFromMemory(BinaryData::face_png,BinaryData::face_pngSize);
  for(const auto& spec:specs){if(juce::String(spec.id)=="bypass")continue;
   if(spec.toggle){auto lever=std::make_unique<Lever>(spec);lever->value=processor.value(spec.id);lever->setTooltip(juce::String(spec.name)+" - click to cycle");lever->onClick=[this,id=juce::String(spec.id),maximum=spec.max]{processor.set(id.toRawUTF8(),std::fmod(processor.value(id.toRawUTF8())+1,maximum+1));};addAndMakeVisible(*lever);levers.push_back(std::move(lever));}
@@ -60,10 +60,23 @@ VocaEditor::VocaEditor(VocaProcessor& p):AudioProcessorEditor(p),processor(p){
  previous.onClick=[this]{processor.setCurrentProgram((processor.getCurrentProgram()+processor.getNumPrograms()-1)%processor.getNumPrograms());};next.onClick=[this]{processor.setCurrentProgram((processor.getCurrentProgram()+1)%processor.getNumPrograms());};
  bypass.onClick=[this]{processor.set("bypass",1-processor.value("bypass"));};
  comparison=processor.params.copyState();compare.onClick=[this]{auto old=processor.params.copyState();processor.params.replaceState(comparison);comparison=old;};copy.onClick=[this]{clipboard=processor.params.copyState();};paste.onClick=[this]{if(clipboard.isValid())processor.params.replaceState(clipboard.createCopy());};
+ #if JUCE_WINDOWS
+ addAndMakeVisible(options);
+ options.onClick=[this]{
+  juce::PopupMenu menu,renderers;menu.setLookAndFeel(&juce::LookAndFeel::getDefaultLookAndFeel());
+  renderers.addItem(1,"Compatibility (CPU / GDI)",true,processor.softwareGraphics.load());
+  const auto* peer=getPeer();const bool accelerated=peer&&peer->getAvailableRenderingEngines().size()>1;
+  renderers.addItem(2,"Accelerated (GPU / Direct2D)",accelerated,!processor.softwareGraphics.load());
+  menu.addSubMenu("Graphics",renderers);
+  auto safe=juce::Component::SafePointer<VocaEditor>(this);
+  menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&options),[safe](int choice){if(safe&&(choice==1||choice==2)){safe->processor.softwareGraphics.store(choice==1);safe->graphics.apply();}});
+ };
+ #endif
  setSize(1192,420);startTimerHz(60);updateProgram();
 }
-VocaEditor::~VocaEditor(){stopTimer();browserWindow.reset();attachments.clear();setLookAndFeel(nullptr);}
+VocaEditor::~VocaEditor(){stopTimer();for(auto& knob:knobs)knob->finishInteraction();browserWindow.reset();attachments.clear();knobs.clear();setLookAndFeel(nullptr);}
 void VocaEditor::resized(){
+ options.setBounds(615,9,85,28);
  previous.setBounds(8,9,27,28);next.setBounds(37,9,27,28);presetsButton.setBounds(68,9,270,28);bypass.setBounds(343,9,65,28);compare.setBounds(413,9,75,28);copy.setBounds(493,9,55,28);paste.setBounds(553,9,55,28);
  for(size_t i=0;i<knobs.size();++i){const auto& s=*knobSpecs[i];const auto ext=s.size*88.f/64.f;knobs[i]->setBounds(juce::roundToInt(s.x-ext/2),juce::roundToInt(46+s.y-ext/2),juce::roundToInt(ext),juce::roundToInt(ext));}
  for(auto& lever:levers){const auto& s=lever->spec;lever->setBounds((int)s.x-8,46+(int)s.y-12,16,25);}
@@ -87,7 +100,7 @@ void VocaEditor::paint(juce::Graphics& g){
 }
 void VocaEditor::updateProgram(){presetsButton.setButtonText(processor.getProgramName(processor.getCurrentProgram())+" v");bypass.setButtonText(processor.value("bypass")>.5f?"BYPASS":"IN");}
 void VocaEditor::timerCallback(){
- updateProgram();for(auto& knob:knobs)knob->animar();for(auto& lever:levers){const auto v=processor.value(lever->spec.id);if(v!=lever->value){lever->value=v;lever->repaint();}}
+ graphics.apply();updateProgram();for(auto& knob:knobs)knob->animar();for(auto& lever:levers){const auto v=processor.value(lever->spec.id);if(v!=lever->value){lever->value=v;lever->repaint();}}
  const int mode=(int)processor.value("meter");float target=-48;
  if(processor.value("power")>.5f){if(mode==0)target=juce::jlimit(-48.f,45.f,20.f-processor.compressorGR.load()*4.f);else if(mode==3)target=juce::jlimit(-48.f,45.f,20.f-processor.deesserGR.load()*3.f);else {const float level=processor.meterValues[mode==1?1:2].load();target=juce::jlimit(-48.f,45.f,20.f+(float)voca::gainToDb(level)*2.3f);}}
  needle+=(target-needle)*.22f;repaint();

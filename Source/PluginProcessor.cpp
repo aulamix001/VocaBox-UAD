@@ -34,8 +34,31 @@ void VocaProcessor::processBlock(juce::AudioBuffer<float>& b,juce::MidiBuffer& m
  const float levels[]={(float)m.input,(float)m.pre,(float)m.output,(float)m.gr,(float)m.ds};
  for(size_t i=0;i<5;++i)meterValues[i].store(std::max(levels[i],meterValues[i].load()*decay));compressorGR.store((float)m.gr);deesserGR.store((float)m.ds);
 }
-void VocaProcessor::getStateInformation(juce::MemoryBlock& data){auto state=params.copyState();state.setProperty("program",currentProgram.load(),nullptr);if(auto xml=state.createXml())copyXmlToBinary(*xml,data);}
-void VocaProcessor::setStateInformation(const void* data,int size){if(auto xml=getXmlFromBinary(data,size))if(xml->hasTagName(params.state.getType())){auto state=juce::ValueTree::fromXml(*xml);params.replaceState(state);currentProgram.store(juce::jlimit(0,(int)bank.size()-1,(int)state.getProperty("program",0)));}}
+void VocaProcessor::getStateInformation(juce::MemoryBlock& data){
+ auto state=params.copyState();const int program=juce::jlimit(0,(int)bank.size()-1,currentProgram.load());
+ state.setProperty("program",program,nullptr);state.setProperty("programId",bank[(size_t)program].id,nullptr);
+ state.setProperty("factoryCount",(int)std::count_if(bank.begin(),bank.end(),[](const Preset& p){return !p.isUser;}),nullptr);
+ state.setProperty("graphicsMode",softwareGraphics.load()?0:1,nullptr);
+ if(auto xml=state.createXml())copyXmlToBinary(*xml,data);
+}
+void VocaProcessor::setStateInformation(const void* data,int size){
+ if(auto xml=getXmlFromBinary(data,size))if(xml->hasTagName(params.state.getType())){
+  auto state=juce::ValueTree::fromXml(*xml);softwareGraphics.store((int)state.getProperty("graphicsMode",CHI_WINDOWS_SOFTWARE_GRAPHICS?0:1)==0);
+  int selected=-1;const auto id=state.getProperty("programId").toString();
+  if(id.isNotEmpty())for(size_t i=0;i<bank.size();++i)if(bank[i].id==id){selected=(int)i;break;}
+  if(selected<0){
+   selected=(int)state.getProperty("program",0);
+   // Older sessions stored user programs immediately after the original 50 factories.
+   const int savedFactories=(int)state.getProperty("factoryCount",50);
+   const int factories=(int)std::count_if(bank.begin(),bank.end(),[](const Preset& p){return !p.isUser;});
+   if(id.isEmpty() && selected>=savedFactories){
+    const int shifted=selected+factories-savedFactories;
+    selected=juce::isPositiveAndBelow(shifted,bank.size())&&bank[(size_t)shifted].isUser?shifted:0;
+   }
+  }
+  params.replaceState(state);currentProgram.store(juce::jlimit(0,(int)bank.size()-1,selected));
+ }
+}
 juce::AudioProcessorEditor* VocaProcessor::createEditor(){return new VocaEditor(*this);}
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter(){return new VocaProcessor();}
 

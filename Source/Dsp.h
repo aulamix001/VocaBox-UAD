@@ -30,6 +30,30 @@ struct Biquad {
     }
     void reset(){z1=z2=0;c=target;}
 };
+// Biased, unity-small-signal triode-style transfer. First-order antiderivative
+// antialiasing averages the nonlinear curve over each sample transition. This
+// reduces aliasing; it is not a circuit simulation or full-band oversampling.
+class TubeStage {
+public:
+    void prepare(double sampleRate) { previous=dcInput=dcOutput=0; pole=std::exp(-6.283185307179586*8.0/sampleRate); }
+    double tick(double input) {
+        const double delta=input-previous;
+        const double scale=std::max({1.0,std::abs(input),std::abs(previous)});
+        const double shaped=(input==0 && previous==0) ? 0 : std::abs(delta)>1.e-5*scale
+            ? (integral(input)-integral(previous))/delta
+            : transfer((input+previous)*.5);
+        previous=input;
+        const double out=(1+pole)*.5*(shaped-dcInput)+pole*dcOutput;
+        dcInput=shaped;dcOutput=std::abs(out)<1.e-30?0:out;
+        return dcOutput;
+    }
+private:
+    static constexpr double drive=.95, bias=.22;
+    static double logCosh(double x) {const auto a=std::abs(x);return a+std::log1p(std::exp(-2*a))-.6931471805599453094;}
+    static double transfer(double x) {const double b=std::tanh(bias);return (std::tanh(drive*x+bias)-b)/(drive*(1-b*b));}
+    static double integral(double x) {const double b=std::tanh(bias);return (logCosh(drive*x+bias)-logCosh(bias)-drive*x*b)/(drive*drive*(1-b*b));}
+    double previous=0,dcInput=0,dcOutput=0,pole=0;
+};
 // Independent, allocation-free stereo processing core. This is an approximation,
 // not a circuit model or a bit-identical emulation of a commercial plugin.
 class Engine {
@@ -39,7 +63,7 @@ public:
     static constexpr std::array<double,11> highs={1500,2000,3000,4000,5000,6400,8000,10000,12000,16000,20000};
     static constexpr std::array<double,5> attacks={.004,.008,.016,.035,.070};
     static constexpr std::array<double,5> releases={.3,.5,1,2,5};
-    void prepare(double sampleRate){fs=sampleRate; for(auto& c:channels)c=Channel{}; inputSmooth=preSmooth=outputSmooth=wetSmooth=powerSmooth=1; meters={};}
+    void prepare(double sampleRate){fs=sampleRate; for(auto& c:channels){c=Channel{};c.tube.prepare(sampleRate);} inputSmooth=preSmooth=outputSmooth=wetSmooth=powerSmooth=1; meters={};}
     void configure(const Settings& p){
         settings=p;
         inputTarget=dbToGain((p.input-5)*3); // 0–10 UI → -15…+15 dB input trim.
@@ -74,8 +98,8 @@ public:
                 const double reduction=settings.compress?softReduction(gainToDb(ch.env)-threshold,3,6,16):0;
                 ch.gr=follow(ch.gr,reduction,attack,settings.compress?release:1-smooth);block.gr=std::max(block.gr,ch.gr);
                 double y=x[c]*dbToGain(-ch.gr)*preSmooth;
-                // Gentle tube-like saturation; no claim of exact triode or transformer modelling.
-                y=std::tanh(y*.65)/.65;
+                // Input and Gain drive the asymmetric tube stage; Output trims the result.
+                y=ch.tube.tick(y);
                 block.pre=std::max(block.pre,std::abs(y));
                 y=ch.high.tick(ch.mid.tick(ch.low.tick(y,smooth),smooth),smooth);
                 equalized[c]=y;bands[c]=ch.band.tick(y,smooth);
@@ -102,7 +126,7 @@ public:
         return std::min(maximum,over<knee/2?slope*(over+knee/2)*(over+knee/2)/(2*knee):slope*over);
     }
 private:
-    struct Channel {Biquad hp,low,mid,high,band;double env=0,gr=0,dsEnv=0,dsGr=0;};
+    struct Channel {TubeStage tube;Biquad hp,low,mid,high,band;double env=0,gr=0,dsEnv=0,dsGr=0;};
     static double follow(double old,double target,double a,double r){const auto k=target>old?a:r;return target+k*(old-target);}
     std::array<Channel,2> channels{};Settings settings{};Meters meters{};
     double fs=48000,inputSmooth=1,preSmooth=1,outputSmooth=1,wetSmooth=1,powerSmooth=1;

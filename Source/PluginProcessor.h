@@ -27,6 +27,7 @@ public:
  bool renomearPreset(int,const juce::String&);bool excluirPreset(int);
  void alternarFavorito(int);static juce::File arquivoBiblioteca();
 
+ std::atomic<bool> softwareGraphics{CHI_WINDOWS_SOFTWARE_GRAPHICS != 0};
  std::array<std::atomic<float>,5> meterValues{};std::atomic<float> compressorGR{0},deesserGR{0};
 private:
  static juce::AudioProcessorValueTreeState::ParameterLayout makeLayout();

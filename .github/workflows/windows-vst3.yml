@@ -49,6 +49,14 @@ jobs:
         if: failure()
         shell: pwsh
         run: |
+          if (Test-Path 'dist/Debug-build.log') {
+            foreach ($line in Get-Content 'dist/Debug-build.log') {
+              if ($line -match '(?:fatal )?error (?:C[0-9]+|LNK[0-9]+):.*') {
+                $message = $Matches[0] -replace '[A-Z]:\\[^ ]+', '[path]'
+                Write-Host "::error::$message"
+              }
+            }
+          }
           '## Windows build failure' >> $env:GITHUB_STEP_SUMMARY
           foreach ($log in @('dist/Debug-build.log', 'build-msvc/Testing/Temporary/LastTest.log')) {
             if (Test-Path $log) {

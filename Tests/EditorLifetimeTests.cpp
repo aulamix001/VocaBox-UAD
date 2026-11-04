@@ -26,7 +26,19 @@ private:
     }
     void mouse(juce::ModifierKeys mods, juce::Point<float> point) {
         auto* peer=editor->getPeer();require(peer!=nullptr,"Native editor peer missing");
+       #if JUCE_WINDOWS
+        // Hosted Windows runners have no interactive mouse. Inject MouseEvents
+        // into the real control, preserving Slider's DragInProgress, attachments
+        // and native popup/dialog rather than manually firing gesture callbacks.
+        const auto local=knob->getLocalPoint(editor.get(),point);
+        const auto now=juce::Time::getCurrentTime();
+        const juce::MouseEvent event(juce::Desktop::getInstance().getMainMouseSource(),local,mods,1,0,0,0,0,knob,knob,now,local,now,1,injectedDown);
+        if(mods.isAnyMouseButtonDown()) {
+            if(!injectedDown){injectedDown=true;knob->mouseDown(event);}else knob->mouseDrag(event);
+        }else if(injectedDown){injectedDown=false;knob->mouseUp(event);}
+       #else
         peer->handleMouseEvent(juce::MouseInputSource::InputSourceType::mouse,point,mods,1,0,juce::Time::currentTimeMillis());
+       #endif
     }
     void timerCallback() override {
       try {
@@ -82,7 +94,7 @@ private:
             require(juce::Component::getNumCurrentlyModalComponents()>0,"Numeric dialog failed to reopen");dialogStep=2;return;
         }
         // Close while the audio worker continues processing and, in cycle 2, while dragging.
-        editor.reset();knob=nullptr;
+        editor.reset();knob=nullptr;injectedDown=false;
         require(gestures.starts==gestures.ends,"Unbalanced automation gesture after editor destruction");
         require(juce::Component::getNumCurrentlyModalComponents()==0,"Dialog survived editor destruction");
         parameter->removeListener(&gestures);parameter=nullptr;
@@ -101,7 +113,7 @@ private:
     NativeKnob* knob=nullptr;juce::AudioProcessorParameter* parameter=nullptr;Gesture gestures;
     std::atomic<bool> running{false};std::atomic<int> blocks{0};std::thread worker;
     juce::int64 numericDeadline=0;
-    int instance=0,cycle=0,dialogStep=0;bool interacted=false;
+    int instance=0,cycle=0,dialogStep=0;bool interacted=false,injectedDown=false;
 };
 int main() {
     juce::ScopedJuceInitialiser_GUI gui;

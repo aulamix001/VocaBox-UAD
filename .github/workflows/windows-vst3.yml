@@ -2,6 +2,7 @@ name: Windows x64 VST3 (MSVC)
 on:
   workflow_dispatch:
   push:
+    branches: [main]
     tags: ['v*']
 permissions:
   contents: read
@@ -22,12 +23,12 @@ jobs:
           cmake --build build-msvc --config Debug --parallel 2 2>&1 | Tee-Object -FilePath dist/Debug-build.log
           if ($LASTEXITCODE -ne 0) { throw 'Debug build failed' }
           ctest --test-dir build-msvc -C Debug --output-on-failure
-          if ($LASTEXITCODE -ne 0) { throw 'Debug tests failed' }
+          if ($LASTEXITCODE -ne 0) {
+            Get-Content build-msvc/Testing/Temporary/LastTest.log | Where-Object { $_ -match 'FAIL:|failed|mismatch|missing|differs|not |unbalanced|timeout|JUCE Assertion|Leaked' } | Select-Object -First 40 | ForEach-Object { Write-Host "::error::$_" }
+            throw 'Debug tests failed'
+          }
           New-Item -ItemType Directory -Force dist | Out-Null
           Copy-Item build-msvc/Testing/Temporary/LastTest.log dist/Debug-tests.log
-          Compress-Archive -Path build-msvc/VocaBox_artefacts/Debug/VST3/VocaBox.vst3 -DestinationPath dist/VocaBox-Windows-x64-Debug.zip
-          $pdbs = @(Get-ChildItem build-msvc -Recurse -Filter *.pdb)
-          if ($pdbs.Count -gt 0) { Compress-Archive -Path $pdbs.FullName -DestinationPath dist/VocaBox-Windows-x64-PDBs.zip }
       - name: Build and test Release
         shell: pwsh
         run: |
@@ -43,7 +44,7 @@ jobs:
           python scripts/package.py --bundle build-msvc/VocaBox_artefacts/Release/VST3/VocaBox.vst3
           if ($LASTEXITCODE -ne 0) { throw 'Packaging failed' }
           @('Compiler: MSVC / Visual Studio 2022', "Commit: $env:GITHUB_SHA", "Run: $env:GITHUB_RUN_ID", 'Debug and Release: DSP, Tube, Processor, VST3Host, EditorLifetime passed', 'Studio One and official Steinberg validator: not executed') | Set-Content dist/Windows-MSVC-build.txt
-          @('# VocaBox: 100 presets e saturação de válvula', '', 'VST3 Windows x64 compilado com MSVC. Banco de 100 presets, saturação assimétrica e correções de encerramento da interface.', '', 'Download: VocaBox-Windows-x64.zip. Feche a DAW e copie a pasta inteira VocaBox.vst3 para C:\Program Files\Common Files\VST3\.', '', "Commit compilado: $env:GITHUB_SHA", '', 'Suítes Debug/Release executadas no Windows. Studio One/Fender Studio Pro e validator oficial Steinberg não foram executados. O congelamento informado na DAW não é considerado resolvido por estes testes.', '', 'Fontes, hashes SHA256, logs e símbolos Debug estão anexados.') | Set-Content -Encoding utf8 dist/release-notes.md
+          @('# VocaBox: 100 presets e saturação de válvula', '', 'VST3 Windows x64 compilado com MSVC. Banco de 100 presets, saturação assimétrica e correções de encerramento da interface.', '', 'Download: VocaBox-Windows-x64.zip. Feche a DAW e copie a pasta inteira VocaBox.vst3 para C:\Program Files\Common Files\VST3\.', '', "Commit compilado: $env:GITHUB_SHA", '', 'Suítes Debug/Release executadas no Windows. Studio One/Fender Studio Pro e validator oficial Steinberg não foram executados. O congelamento informado na DAW não é considerado resolvido por estes testes.', '', 'Fontes e hashes SHA256 estão anexados.') | Set-Content -Encoding utf8 dist/release-notes.md
       - name: Public build diagnostics
         if: failure()
         shell: pwsh
@@ -79,5 +80,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create $env:GITHUB_REF_NAME --verify-tag --title "VocaBox $env:GITHUB_REF_NAME - 100 presets e válvula" --notes-file dist/release-notes.md dist/*.zip dist/SHA256SUMS.txt dist/Windows-MSVC-build.txt dist/Debug-tests.log dist/Release-tests.log
+          gh release create $env:GITHUB_REF_NAME --verify-tag --title "VocaBox $env:GITHUB_REF_NAME - 100 presets e válvula" --notes-file dist/release-notes.md dist/VocaBox-Windows-x64.zip dist/VocaBox-Source.zip dist/SHA256SUMS.txt dist/Windows-MSVC-build.txt
           if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }

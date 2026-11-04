@@ -2,6 +2,7 @@ name: Windows x64 VST3 (MSVC)
 on:
   workflow_dispatch:
   push:
+    branches: [main]
     tags: ['v*']
 permissions:
   contents: read
@@ -18,7 +19,8 @@ jobs:
       - name: Build and test Debug
         shell: pwsh
         run: |
-          cmake --build build-msvc --config Debug --parallel 2
+          New-Item -ItemType Directory -Force dist | Out-Null
+          cmake --build build-msvc --config Debug --parallel 2 2>&1 | Tee-Object -FilePath dist/Debug-build.log
           if ($LASTEXITCODE -ne 0) { throw 'Debug build failed' }
           ctest --test-dir build-msvc -C Debug --output-on-failure
           if ($LASTEXITCODE -ne 0) { throw 'Debug tests failed' }
@@ -43,6 +45,19 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Packaging failed' }
           @('Compiler: MSVC / Visual Studio 2022', "Commit: $env:GITHUB_SHA", "Run: $env:GITHUB_RUN_ID", 'Debug and Release: DSP, Tube, Processor, VST3Host, EditorLifetime passed', 'Studio One and official Steinberg validator: not executed') | Set-Content dist/Windows-MSVC-build.txt
           @('# VocaBox: 100 presets e saturação de válvula', '', 'VST3 Windows x64 compilado com MSVC. Banco de 100 presets, saturação assimétrica e correções de encerramento da interface.', '', 'Download: VocaBox-Windows-x64.zip. Feche a DAW e copie a pasta inteira VocaBox.vst3 para C:\Program Files\Common Files\VST3\.', '', "Commit compilado: $env:GITHUB_SHA", '', 'Suítes Debug/Release executadas no Windows. Studio One/Fender Studio Pro e validator oficial Steinberg não foram executados. O congelamento informado na DAW não é considerado resolvido por estes testes.', '', 'Fontes, hashes SHA256, logs e símbolos Debug estão anexados.') | Set-Content -Encoding utf8 dist/release-notes.md
+      - name: Public build diagnostics
+        if: failure()
+        shell: pwsh
+        run: |
+          '## Windows build failure' >> $env:GITHUB_STEP_SUMMARY
+          foreach ($log in @('dist/Debug-build.log', 'build-msvc/Testing/Temporary/LastTest.log')) {
+            if (Test-Path $log) {
+              "### $log" >> $env:GITHUB_STEP_SUMMARY
+              '```text' >> $env:GITHUB_STEP_SUMMARY
+              Get-Content $log | Select-Object -Last 180 >> $env:GITHUB_STEP_SUMMARY
+              '```' >> $env:GITHUB_STEP_SUMMARY
+            }
+          }
       - uses: actions/upload-artifact@v4
         if: always()
         with:
